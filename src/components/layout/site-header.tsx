@@ -47,28 +47,28 @@ export function SiteHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
+              <SheetHeader className="border-b border-border/50 pb-6 pt-2">
                 <SheetTitle className="text-left">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={LOGO_URL} alt="Lingère Bi By Dié Dié" className="h-10 w-auto rounded-md object-contain" />
+                  <img src={LOGO_URL} alt="Lingère Bi By Dié Dié" className="h-10 w-auto rounded object-contain shadow-sm" />
                 </SheetTitle>
               </SheetHeader>
-              <nav aria-label="Menu principal mobile" className="mt-6 flex flex-col gap-4">
+              <nav aria-label="Menu principal mobile" className="flex flex-col gap-1 px-2 py-4 h-full overflow-y-auto hide-scrollbar">
                 <Accordion type="single" collapsible className="w-full">
                   {categories.map((category) => (
                     category.subcategories && category.subcategories.length > 0 ? (
-                      <AccordionItem value={category.slug} key={category.slug}>
-                        <AccordionTrigger className="text-base font-medium">
+                      <AccordionItem value={category.slug} key={category.slug} className="border-b-0">
+                        <AccordionTrigger className="text-lg font-medium px-4 hover:bg-accent/50 rounded-xl transition-colors data-[state=open]:text-primary data-[state=open]:bg-accent/20">
                           {category.name}
                         </AccordionTrigger>
                         <AccordionContent>
-                          <div className="flex flex-col space-y-3 pb-2 pt-1 pl-4">
+                          <div className="flex flex-col space-y-1 pb-4 pt-2 px-2">
                             {category.subcategories.map((sub) => (
                               <Link
                                 key={sub.slug}
                                 href={`/categorie/${category.slug}/${sub.slug}`}
                                 onClick={() => setIsOpen(false)}
-                                className="text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                                className="block py-3 px-4 text-muted-foreground transition-colors hover:text-primary hover:bg-accent/50 rounded-lg text-base"
                               >
                                 {sub.name}
                               </Link>
@@ -76,7 +76,7 @@ export function SiteHeader() {
                             <Link
                               href={`/categorie/${category.slug}`}
                               onClick={() => setIsOpen(false)}
-                              className="text-foreground font-medium pt-2 border-t mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                              className="block py-3 px-4 text-primary font-medium mt-3 bg-primary/5 hover:bg-primary/10 transition-colors rounded-lg text-center text-base"
                             >
                               Voir tout {category.name}
                             </Link>
@@ -84,11 +84,11 @@ export function SiteHeader() {
                         </AccordionContent>
                       </AccordionItem>
                     ) : (
-                      <div key={category.slug} className="py-4 border-b">
+                      <div key={category.slug} className="py-1">
                         <Link
                           href={`/categorie/${category.slug}`}
                           onClick={() => setIsOpen(false)}
-                          className="text-base font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                          className="block py-4 px-4 text-lg font-medium transition-colors hover:text-primary hover:bg-accent/50 rounded-xl"
                         >
                           {category.name}
                         </Link>

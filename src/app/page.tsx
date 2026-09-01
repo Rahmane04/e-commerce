@@ -167,7 +167,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
             {FEATURED_PRODUCTS.map((product) => {
               const price = Money.fromCents(product.priceCents).format();
               const oldPrice = product.compareAtPriceCents
@@ -205,7 +205,7 @@ export default function HomePage() {
                       <AddToCartButton product={product} />
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col p-4">
+                  <div className="flex flex-1 flex-col p-3 sm:p-4">
                     <p className="text-xs font-medium uppercase tracking-wide text-[#4a4a5e]">{product.categorySlug}</p>
                     <h3 className="mt-1 font-serif text-base font-semibold leading-snug">
                       <Link href={`/produit/${product.slug}`}>
