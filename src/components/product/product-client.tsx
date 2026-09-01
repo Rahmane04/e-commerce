@@ -88,7 +88,7 @@ export function ProductClient({ product, inStock }: ProductClientProps) {
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-foreground">Quantité</h3>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-32 items-center justify-between rounded-md border border-input bg-transparent px-3">
+          <div className="flex h-11 w-32 items-center justify-between rounded-md border border-input bg-transparent px-3">
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}

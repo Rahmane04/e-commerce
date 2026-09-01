@@ -43,18 +43,18 @@ export function ProductGallery({ images }: ProductGalleryProps) {
         
         {images.length > 1 && (
           <>
-            <div className="absolute inset-y-0 left-2 flex items-center opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+            <div className="absolute inset-y-0 left-2 flex items-center opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full shadow-md bg-card/80 backdrop-blur-sm hover:bg-card"
+                className="h-11 w-11 rounded-full shadow-md bg-card/80 backdrop-blur-sm hover:bg-card"
                 onClick={prevImage}
                 aria-label="Image précédente"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
             </div>
-            <div className="absolute inset-y-0 right-2 flex items-center opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+            <div className="absolute inset-y-0 right-2 flex items-center opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
               <Button
                 variant="secondary"
                 size="icon"

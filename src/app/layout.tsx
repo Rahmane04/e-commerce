@@ -21,7 +21,7 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.linguerebi.sn"; // TODO: remplacer par l'URL de production
 const siteName = "La Boutique"; // TODO: remplacer par le nom de la marque
 
 export const metadata: Metadata = {

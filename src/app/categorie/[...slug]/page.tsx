@@ -102,11 +102,11 @@ export default function CategoryPage({ params }: PageProps) {
 
       {/* ── Filtres ─────────────────────────────────────────────────────── */}
       <div className="sticky top-16 z-30 border-b border-[#e8e4d9] bg-[#fcfbf8]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 lg:px-6">
 
           {/* Pills sous-catégories */}
           {subcategories.length > 0 && (
-            <div role="group" aria-label="Filtrer par sous-catégorie" className="flex flex-wrap gap-2">
+            <div role="group" aria-label="Filtrer par sous-catégorie" className="flex w-full overflow-x-auto snap-x hide-scrollbar gap-2 pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0 sm:w-auto">
               <button
                 onClick={() => setActiveSubcat("tous")}
                 aria-pressed={activeSubcat === "tous"}
@@ -136,9 +136,11 @@ export default function CategoryPage({ params }: PageProps) {
           )}
 
           {/* Tri */}
-          <div className="ml-auto flex items-center gap-2 text-sm text-[#4a4a5e]">
-            <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-            <label htmlFor="sort-select" className="sr-only">Trier par</label>
+          <div className="flex w-full items-center justify-between gap-2 text-sm text-[#4a4a5e] sm:w-auto sm:justify-end">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+              <label htmlFor="sort-select" className="sr-only">Trier par</label>
+            </div>
             <select
               id="sort-select"
               value={sortBy}
@@ -206,7 +208,7 @@ export default function CategoryPage({ params }: PageProps) {
                       <AddToCartButton product={product} />
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col p-4">
+                  <div className="flex flex-1 flex-col p-3 sm:p-4">
                     <p className="text-xs font-medium uppercase tracking-wide text-[#4a4a5e]">
                       {subcatName}
                     </p>
