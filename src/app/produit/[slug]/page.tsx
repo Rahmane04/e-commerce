@@ -49,7 +49,7 @@ export default async function ProductPage({ params }: PageProps) {
     <div className="min-h-screen bg-[#fcfbf8] text-[#1a1a2e]">
       <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
         {/* Breadcrumb */}
-        <div className="mb-8 flex items-center gap-2 text-sm text-[#5a5a6e]">
+        <div className="mb-8 flex flex-wrap items-center gap-2 text-sm text-[#5a5a6e]">
           <Link href="/" className="transition-colors hover:text-[#c5a059]">
             Accueil
           </Link>

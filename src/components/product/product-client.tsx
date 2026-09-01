@@ -115,12 +115,12 @@ export function ProductClient({ product, inStock }: ProductClientProps) {
 
       {/* Actions */}
       <div className="flex flex-col gap-3 pt-4">
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Button
             onClick={handleAddToCart}
             disabled={!canOrder || isUpdating}
             variant="outline"
-            className="flex-1 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-[#f5f0e6]"
+            className="w-full sm:flex-1 border-[#1a1a2e] text-[#1a1a2e] hover:bg-[#1a1a2e] hover:text-[#f5f0e6]"
           >
             <ShoppingBag className="mr-2 h-4 w-4" />
             Ajouter au panier
@@ -128,7 +128,7 @@ export function ProductClient({ product, inStock }: ProductClientProps) {
           <Button
             onClick={handleDirectOrder}
             disabled={!canOrder || isUpdating}
-            className="flex-1 bg-[#1a1a2e] text-[#f5f0e6] hover:bg-[#1a1a2e]/90"
+            className="w-full sm:flex-1 bg-[#1a1a2e] text-[#f5f0e6] hover:bg-[#1a1a2e]/90"
           >
             <CreditCard className="mr-2 h-4 w-4" />
             Commander
