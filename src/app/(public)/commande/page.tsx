@@ -18,7 +18,7 @@ export default function CheckoutPage() {
   const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   if (!mounted) {

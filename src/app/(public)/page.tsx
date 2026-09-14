@@ -71,13 +71,13 @@ export default function HomePage() {
               Une boutique pensée pour sublimer votre quotidien.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-                <a
+                <Link
                   href="/categorie/nouveautes"
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-[#c5a059] px-6 py-3 text-sm font-semibold text-[#1a1a2e] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a2e]"
                 >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 Voir les nouveautés
-              </a>
+              </Link>
               <a
                 href="#categories"
                 className="inline-flex items-center justify-center rounded-md border border-[#f5f0e6]/30 px-6 py-3 text-sm font-semibold text-[#f5f0e6] transition-colors hover:bg-[#f5f0e6]/10"
@@ -244,9 +244,9 @@ export default function HomePage() {
             </div>
           </div>
           <div>
-            <h2 className="font-serif text-3xl font-semibold lg:text-4xl">L'histoire de Lingère Bi By Dié Dié</h2>
+            <h2 className="font-serif text-3xl font-semibold lg:text-4xl">L&apos;histoire de Lingère Bi By Dié Dié</h2>
             <p className="mt-6 leading-relaxed text-[#4a4a5e]">
-              Née d'une passion pour l'élégance accessible, notre boutique vous propose une sélection resserrée de
+              Née d&apos;une passion pour l&apos;élégance accessible, notre boutique vous propose une sélection resserrée de
               vêtements, lingerie fine, linge de maison et senteurs. Chaque produit est choisi avec soin pour allier
               qualité, confort et esthétique.
             </p>
@@ -266,7 +266,7 @@ export default function HomePage() {
       {/* Testimonials */}
       <section role="region" aria-label="Avis clients" className="border-t border-[#e8e4d9] bg-[#f3efe6]/50">
         <div className="mx-auto max-w-7xl px-4 py-20 lg:px-6">
-          <h2 className="mb-12 text-center font-serif text-3xl font-semibold lg:text-4xl">Ce qu'elles en disent</h2>
+          <h2 className="mb-12 text-center font-serif text-3xl font-semibold lg:text-4xl">Ce qu&apos;elles en disent</h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {TESTIMONIALS.map((t, i) => (
               <article key={i} className="rounded-2xl border border-[#e8e4d9] bg-white p-6 shadow-sm">
@@ -287,7 +287,7 @@ export default function HomePage() {
       {/* Newsletter */}
       <section className="bg-[#1a1a2e] py-20 text-[#f5f0e6]">
         <div className="mx-auto max-w-3xl px-4 text-center lg:px-6">
-          <h2 className="font-serif text-3xl font-semibold lg:text-4xl">Rejoignez l'univers Lingère Bi By Dié Dié</h2>
+          <h2 className="font-serif text-3xl font-semibold lg:text-4xl">Rejoignez l&apos;univers Lingère Bi By Dié Dié</h2>
           <p className="mx-auto mt-4 max-w-xl text-[#f5f0e6]/90">
             Inscrivez-vous pour recevoir nos nouveautés, offres exclusives et inspirations directement dans votre boîte mail.
           </p>
@@ -307,7 +307,7 @@ export default function HomePage() {
               type="submit"
               className="rounded-md bg-[#c5a059] px-6 py-3 text-sm font-semibold text-[#1a1a2e] transition-colors hover:bg-[#b08d4b]"
             >
-              S'inscrire
+              S&apos;inscrire
             </button>
           </form>
         </div>
