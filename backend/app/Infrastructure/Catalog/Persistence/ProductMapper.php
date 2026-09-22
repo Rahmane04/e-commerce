@@ -26,6 +26,7 @@ class ProductMapper
             stock: $model->stock,
             featured: $model->featured,
             isNew: $model->is_new,
+            isPublished: $model->is_published,
         );
     }
 }

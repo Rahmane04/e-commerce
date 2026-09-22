@@ -16,6 +16,7 @@ final class Product
         public readonly ?Money $compareAtPrice,
         public readonly array $images,
         public readonly array $variants,
+        public readonly bool $isPublished,
         public readonly int $stock,
         public readonly bool $featured,
         public readonly bool $isNew,
@@ -31,4 +32,8 @@ final class Product
         return $this->compareAtPrice !== null
             && $this->compareAtPrice->isGreaterThan($this->price);
     }
+    public function canBePublished(): bool
+    {
+        return count($this->images) > 0;
+        }
 }

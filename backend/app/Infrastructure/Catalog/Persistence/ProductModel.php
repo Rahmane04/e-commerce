@@ -10,7 +10,7 @@ class ProductModel extends Model
     protected $fillable = [
         'slug', 'name', 'description', 'category_id',
         'price_cents', 'compare_at_price_cents', 'stock',
-        'images', 'featured', 'is_new',
+        'images', 'featured', 'is_new', 'is_published',
     ];
 
     public function category()
