@@ -14,7 +14,7 @@ import {
   addProductToCart,
   AddProductToCartCommand,
 } from "@/application/cart/cart-use-cases";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 
 interface CartState {
   cart: Cart;

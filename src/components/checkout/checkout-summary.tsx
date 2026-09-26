@@ -57,7 +57,7 @@ export function CheckoutSummary() {
                   >
                     -
                   </button>
-                  <span className="px-2 text-sm">{item.quantity}</span>
+                  <span className="font-medium text-slate-900">Gratuit pour cette commande d&apos;essai</span>
                   <button
                     onClick={() => setQuantity(item.id, item.quantity + 1)}
                     className="px-2 py-1 text-sm text-[#5a5a6e] hover:text-[#1a1a2e]"

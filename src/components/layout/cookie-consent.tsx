@@ -16,9 +16,11 @@ export function CookieConsent() {
   useEffect(() => {
     const stored = localStorage.getItem(CONSENT_KEY) as ConsentStatus;
     if (!stored) {
-      setVisible(true);
-      // Focus the dialog when it appears
-      requestAnimationFrame(() => firstFocusRef.current?.focus());
+      setTimeout(() => {
+        setVisible(true);
+        // Focus the dialog when it appears
+        requestAnimationFrame(() => firstFocusRef.current?.focus());
+      }, 0);
     } else {
       setStatus(stored);
     }
@@ -80,9 +82,7 @@ export function CookieConsent() {
             id="cookie-consent-description"
             className="text-sm text-[#4a4a5e]"
           >
-            Nous utilisons des cookies pour améliorer votre expérience de
-            navigation. Aucun cookie non essentiel n'est déposé sans votre
-            consentement.{" "}
+            En utilisant notre site, vous acceptez notre utilisation des cookies pour am&eacute;liorer votre exp&eacute;rience d&apos;achat et analyser notre trafic. Aucun cookie non essentiel n&apos;est d&eacute;pos&eacute; sans votre consentement.{" "}
             <a
               href="#"
               className="font-medium text-[#1a1a2e] underline hover:text-[#8a6d3b]"

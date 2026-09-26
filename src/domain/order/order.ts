@@ -2,6 +2,19 @@ import { Cart, cartTotal } from "@/domain/cart/cart";
 import { Customer } from "@/domain/customer/customer";
 import { Money } from "@/domain/shared/money";
 
+export type OrderStatus =
+  | "en_attente"
+  | "confirmee"
+  | "expediee"
+  | "livree"
+  | "annulee";
+
+export interface StatusChange {
+  status: OrderStatus;
+  changedAt: string; // ISO date
+  note?: string;
+}
+
 export interface OrderItem {
   productId: string;
   productName: string;
@@ -11,12 +24,37 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: string; // Temporaire pour la V1 (ex: timestamp)
+  id: string;
   items: OrderItem[];
   customer: Customer;
   totalCents: number;
-  status: "submitted";
+  status: OrderStatus;
+  statusHistory: StatusChange[];
   createdAt: string;
+}
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  en_attente: "En attente",
+  confirmee: "Confirmée",
+  expediee: "Expédiée",
+  livree: "Livrée",
+  annulee: "Annulée",
+};
+
+export function getStatusLabel(status: OrderStatus): string {
+  return ORDER_STATUS_LABELS[status];
+}
+
+const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  en_attente: ["confirmee", "annulee"],
+  confirmee: ["expediee", "annulee"],
+  expediee: ["livree"],
+  livree: [],
+  annulee: [],
+};
+
+export function getNextStatuses(current: OrderStatus): OrderStatus[] {
+  return ORDER_TRANSITIONS[current];
 }
 
 export function placeOrder(cart: Cart, customer: Customer): Order {
@@ -32,13 +70,16 @@ export function placeOrder(cart: Cart, customer: Customer): Order {
     priceCents: item.priceCents,
   }));
 
+  const now = new Date().toISOString();
+
   return {
     id: `CMD-${Date.now()}`,
     items,
     customer,
     totalCents: cartTotal(cart).toCents(),
-    status: "submitted",
-    createdAt: new Date().toISOString(),
+    status: "en_attente",
+    statusHistory: [{ status: "en_attente", changedAt: now }],
+    createdAt: now,
   };
 }
 
