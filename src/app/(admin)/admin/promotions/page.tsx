@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Percent, Pencil, Trash2 } from "lucide-react";
 import { promotionRepository } from "@/infrastructure/repositories/mock-promotion-repository";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { Promotion, getPromotionStatus, formatPromotionValue } from "@/domain/promotion/promotion";
 import { Category } from "@/domain/product/category";
 import { Product } from "@/domain/product/product";

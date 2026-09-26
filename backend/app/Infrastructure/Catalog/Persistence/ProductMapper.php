@@ -27,6 +27,7 @@ class ProductMapper
             featured: $model->featured,
             isNew: $model->is_new,
             isPublished: $model->is_published,
+            createdAt: $model->created_at->toIso8601String(),
         );
     }
 }

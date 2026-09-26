@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { Money } from "@/domain/shared/money";
 import {
   isProductInStock,

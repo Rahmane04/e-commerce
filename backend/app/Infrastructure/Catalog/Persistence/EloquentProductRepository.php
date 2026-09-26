@@ -5,6 +5,8 @@ use App\Application\Catalog\Ports\ProductRepositoryInterface;
 use App\Domain\Catalog\Exceptions\OutOfStockException;
 use App\Domain\Catalog\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
+use App\Domain\Catalog\Exceptions\ProductHasOrdersException;
 
 class EloquentProductRepository implements ProductRepositoryInterface
 {
@@ -80,4 +82,15 @@ class EloquentProductRepository implements ProductRepositoryInterface
             DB::table('products')->where('id', $productId)->increment('stock', $quantity);
         }
     }
+    public function delete(int $id): void
+    {
+        try {
+            ProductModel::findOrFail($id)->delete();
+            } catch (QueryException $e) {
+                if ($e->getCode() === '23503') { 
+                    throw new ProductHasOrdersException();
+                    }
+                    throw $e;
+                    }
+                    }
 }

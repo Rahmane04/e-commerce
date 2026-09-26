@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { createProduct } from "@/application/admin/product-admin-use-cases";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { toast } from "sonner";
 import { ProductForm } from "@/components/admin/products/product-form";
 import Link from "next/link";

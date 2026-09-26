@@ -9,4 +9,6 @@ interface CategoryRepositoryInterface
     public function findAll(): array;
     public function findBySlug(string $slug): ?Category;
     public function create(array $data): Category;
+    public function update(int $id, array $data): Category;
+    public function delete(int $id): void;
 }    

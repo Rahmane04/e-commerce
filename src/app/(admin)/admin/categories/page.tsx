@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from "lucide-react";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { Category } from "@/domain/product/category";
 import { ConfirmDialog } from "@/components/admin/ui/confirm-dialog";
 import { EmptyState } from "@/components/admin/ui/empty-state";

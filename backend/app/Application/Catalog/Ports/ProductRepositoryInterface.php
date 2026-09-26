@@ -15,4 +15,5 @@ interface ProductRepositoryInterface
     public function publish(int $id): Product;
     public function unpublish(int $id): Product;
     public function incrementStock(int $productId, ?int $variantId, int $quantity): void;
+    public function delete(int $id): void;
 }

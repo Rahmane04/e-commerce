@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Filter, ImageOff, Package } from "lucide-react";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { deleteProduct } from "@/application/admin/product-admin-use-cases";
 import { Product } from "@/domain/product/product";
 import { DataTable, ColumnDef } from "@/components/admin/ui/data-table";

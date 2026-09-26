@@ -1,29 +1,96 @@
 <?php
 namespace App\Http\Controllers\Catalog;
 
+use App\Application\Catalog\Ports\CategoryRepositoryInterface;
+use App\Application\Catalog\Ports\ProductRepositoryInterface;
 use App\Application\Catalog\UseCases\CreateProduct\{CreateProductCommand, CreateProductUseCase};
 use App\Application\Catalog\UseCases\ListProducts\ListProductsUseCase;
 use App\Application\Catalog\UseCases\PublishProduct\PublishProductUseCase;
 use App\Application\Catalog\UseCases\UnpublishProduct\UnpublishProductUseCase;
 use App\Application\Catalog\UseCases\UpdateProduct\{UpdateProductCommand, UpdateProductUseCase};
+use App\Domain\Catalog\Exceptions\ProductNotFoundException;
+use App\Domain\Catalog\Product;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\CreateProductRequest;
 use App\Http\Requests\Catalog\UpdateProductRequest;
+use Illuminate\Http\Request;
+use App\Application\Catalog\UseCases\DeleteProduct\DeleteProductUseCase;
 
 class ProductController extends Controller
 {
-    public function index(ListProductsUseCase $useCase)
-    {
-        $products = $useCase->execute();
+    public function __construct(private CategoryRepositoryInterface $categories) {}
 
-        return response()->json(array_map(fn ($p) => [
-            'id' => $p->id,
+    /** @return array<int, string> id de catégorie => slug */
+    private function categorySlugMap(): array
+    {
+        $map = [];
+        foreach ($this->categories->findAll() as $category) {
+            $map[$category->id] = $category->slug;
+        }
+        return $map;
+    }
+
+    private function toJson(Product $p, array $categorySlugs): array
+    {
+        return [
+            'id' => (string) $p->id,
             'slug' => $p->slug,
             'name' => $p->name,
+            'description' => $p->description,
+            'categorySlug' => $categorySlugs[$p->categoryId] ?? null,
             'priceCents' => $p->price->toCents(),
-            'inStock' => $p->isInStock(),
+            'compareAtPriceCents' => $p->compareAtPrice?->toCents(),
+            'images' => array_map(fn ($url) => ['url' => $url, 'alt' => $p->name], $p->images),
+            'variants' => array_map(fn ($v) => [
+                'id' => (string) $v->id,
+                'label' => $v->label,
+                'value' => $v->value,
+                'stock' => $v->stock,
+            ], $p->variants),
+            'stock' => $p->stock,
+            'featured' => $p->featured,
+            'isNew' => $p->isNew,
             'isPublished' => $p->isPublished,
-        ], $products));
+            'createdAt' => $p->createdAt,
+        ];
+    }
+
+    public function index(Request $request, ListProductsUseCase $useCase)
+    {
+        $products = $useCase->execute();
+        $categorySlugs = $this->categorySlugMap();
+
+        if ($request->filled('category')) {
+            $target = $request->string('category')->toString();
+            $products = array_values(array_filter(
+                $products,
+                fn ($p) => ($categorySlugs[$p->categoryId] ?? null) === $target
+            ));
+        }
+
+        if ($request->boolean('featured')) {
+            $products = array_values(array_filter($products, fn ($p) => $p->featured));
+        }
+
+        if ($request->filled('search')) {
+            $q = mb_strtolower($request->string('search')->toString());
+            $products = array_values(array_filter(
+                $products,
+                fn ($p) => str_contains(mb_strtolower($p->name), $q)
+                    || str_contains(mb_strtolower($p->description), $q)
+            ));
+        }
+
+        return response()->json(array_map(fn ($p) => $this->toJson($p, $categorySlugs), $products));
+    }
+
+    public function show(string $slug, ProductRepositoryInterface $repository)
+    {
+        $product = $repository->findBySlug($slug);
+        if ($product === null) {
+            throw new ProductNotFoundException();
+        }
+        return response()->json($this->toJson($product, $this->categorySlugMap()));
     }
 
     public function store(CreateProductRequest $request, CreateProductUseCase $useCase)
@@ -40,17 +107,11 @@ class ProductController extends Controller
             images: $request->input('images', []),
             featured: $request->boolean('featured'),
             isNew: $request->boolean('is_new'),
-            isPublished: $request->boolean('is_published'),
             variants: $request->input('variants', []),
         );
 
         $product = $useCase->execute($command);
-
-        return response()->json([
-            'id' => $product->id,
-            'slug' => $product->slug,
-            'name' => $product->name,
-        ], 201);
+        return response()->json(['id' => $product->id, 'slug' => $product->slug, 'name' => $product->name], 201);
     }
 
     public function update(UpdateProductRequest $request, int $id, UpdateProductUseCase $useCase)
@@ -69,7 +130,6 @@ class ProductController extends Controller
         );
 
         $product = $useCase->execute($command);
-
         return response()->json(['id' => $product->id, 'slug' => $product->slug]);
     }
 
@@ -83,5 +143,19 @@ class ProductController extends Controller
     {
         $product = $useCase->execute($id);
         return response()->json(['id' => $product->id, 'isPublished' => $product->isPublished]);
+    }
+    public function showById(int $id, ProductRepositoryInterface $repository)
+    {
+        $product = $repository->findById($id);
+        if ($product === null) {
+            throw new \App\Domain\Catalog\Exceptions\ProductNotFoundException();
+        }
+        return response()->json($this->toJson($product, $this->categorySlugMap()));
+    }
+
+    public function destroy(int $id, DeleteProductUseCase $useCase)
+    {
+        $useCase->execute($id);
+        return response()->json(null, 204);
     }
 }

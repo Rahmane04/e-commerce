@@ -9,6 +9,7 @@ final class Order
     /** @param OrderItem[] $items */
     public function __construct(
         public readonly int $id,
+        public readonly ?int $customerId,
         public readonly string $customerName,
         public readonly string $customerPhone,
         public readonly ?string $customerEmail,

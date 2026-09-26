@@ -14,7 +14,7 @@ class ConfirmOrderUseCase
         $order = $this->orders->findById($orderId);
         if ($order === null) throw new OrderNotFoundException();
 
-        $order->transitionTo(OrderStatus::Expediee); // lève une exception si invalide
-        return $this->orders->updateStatus($orderId, OrderStatus::Expediee);
+        $order->transitionTo(OrderStatus::Confirmee);
+        return $this->orders->updateStatus($orderId, OrderStatus::Confirmee);
     }
 }

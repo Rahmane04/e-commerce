@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Product, ProductVariant, ProductImage } from "@/domain/product/product";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { Category } from "@/domain/product/category";
 import { Plus, Trash2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";

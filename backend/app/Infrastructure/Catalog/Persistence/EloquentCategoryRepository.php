@@ -20,7 +20,18 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
 
     public function create(array $data): Category
     {
-        $model = CategoryModel::create($data);
+            $model = CategoryModel::create($data);
+            return CategoryMapper::toDomain($model);
+            }
+    public function update(int $id, array $data): Category
+    {
+        $model = CategoryModel::findOrFail($id);
+        $model->update($data);
         return CategoryMapper::toDomain($model);
+    }
+
+    public function delete(int $id): void
+    {
+        CategoryModel::findOrFail($id)->delete();
     }
 }

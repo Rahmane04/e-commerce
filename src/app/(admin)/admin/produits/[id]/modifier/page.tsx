@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { getProductById, updateProduct } from "@/application/admin/product-admin-use-cases";
 import { Product } from "@/domain/product/product";
 import { ProductForm } from "@/components/admin/products/product-form";

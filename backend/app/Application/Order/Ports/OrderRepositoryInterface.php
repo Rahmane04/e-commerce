@@ -10,4 +10,6 @@ interface OrderRepositoryInterface
     /** @return Order[] */
     public function findAll(): array;
     public function updateStatus(int $id, OrderStatus $status): Order;
+    /** @return Order[] */
+    public function findByCustomerId(int $customerId): array;
 }

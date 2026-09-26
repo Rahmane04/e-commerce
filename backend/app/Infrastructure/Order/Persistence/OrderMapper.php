@@ -10,6 +10,7 @@ class OrderMapper
     {
         return new Order(
             id: $model->id,
+            customerId: $model->customer_id,
             customerName: $model->customer_name,
             customerPhone: $model->customer_phone,
             customerEmail: $model->customer_email,

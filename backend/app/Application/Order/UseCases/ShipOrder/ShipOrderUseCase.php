@@ -1,11 +1,11 @@
 <?php
-namespace App\Application\Order\UseCases\ConfirmOrder;
+namespace App\Application\Order\UseCases\ShipOrder;
 
 use App\Application\Order\Ports\OrderRepositoryInterface;
 use App\Domain\Order\Exceptions\OrderNotFoundException;
 use App\Domain\Order\{Order, OrderStatus};
 
-class ConfirmOrderUseCase
+class ShipOrderUseCase
 {
     public function __construct(private OrderRepositoryInterface $orders) {}
 
@@ -14,7 +14,7 @@ class ConfirmOrderUseCase
         $order = $this->orders->findById($orderId);
         if ($order === null) throw new OrderNotFoundException();
 
-        $order->transitionTo(OrderStatus::Expediee); // lève une exception si invalide
+        $order->transitionTo(OrderStatus::Expediee);
         return $this->orders->updateStatus($orderId, OrderStatus::Expediee);
     }
 }

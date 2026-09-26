@@ -4,7 +4,10 @@ import { Money } from "@/domain/shared/money";
 
 export type OrderStatus =
   | "en_attente"
-  | "livree";
+  | "confirmee"
+  | "expediee"
+  | "livree"
+  | "annulee";
 
 export interface StatusChange {
   status: OrderStatus;
@@ -32,20 +35,26 @@ export interface Order {
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   en_attente: "En attente",
+  confirmee: "Confirmée",
+  expediee: "Expédiée",
   livree: "Livrée",
+  annulee: "Annulée",
 };
 
 export function getStatusLabel(status: OrderStatus): string {
   return ORDER_STATUS_LABELS[status];
 }
 
+const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  en_attente: ["confirmee", "annulee"],
+  confirmee: ["expediee", "annulee"],
+  expediee: ["livree"],
+  livree: [],
+  annulee: [],
+};
+
 export function getNextStatuses(current: OrderStatus): OrderStatus[] {
-  const allStatuses: OrderStatus[] = [
-    "en_attente",
-    "livree",
-  ];
-  // Pour simplifier l'utilisation, on autorise de passer à n'importe quel autre statut
-  return allStatuses.filter((status) => status !== current);
+  return ORDER_TRANSITIONS[current];
 }
 
 export function placeOrder(cart: Cart, customer: Customer): Order {

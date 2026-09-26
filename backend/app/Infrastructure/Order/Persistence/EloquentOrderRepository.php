@@ -35,4 +35,8 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         $model->update(['status' => $status->value]);
         return OrderMapper::toDomain($model->fresh('items'));
     }
+    public function findByCustomerId(int $customerId): array
+    {
+        return OrderModel::with('items')->where('customer_id', $customerId)->latest()->get()->map(fn ($m) => OrderMapper::toDomain($m))->all();
+        }
 }

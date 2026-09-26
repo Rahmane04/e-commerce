@@ -20,6 +20,8 @@ final class Product
         public readonly int $stock,
         public readonly bool $featured,
         public readonly bool $isNew,
+        public readonly string $createdAt,
+
     ) {}
 
     public function isInStock(): bool

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Search, Filter, Warehouse, Check, X, AlertTriangle } from "lucide-react";
-import { productRepository } from "@/infrastructure/repositories/mock-product-repository";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { adjustStock } from "@/application/admin/product-admin-use-cases";
 import { Product } from "@/domain/product/product";
 import { DataTable, ColumnDef } from "@/components/admin/ui/data-table";

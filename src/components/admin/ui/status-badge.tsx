@@ -4,17 +4,26 @@ import { PromotionStatus } from "@/domain/promotion/promotion";
 
 // ── Statuts commande ──────────────────────────────────────────────────────────
 
-const ORDER_STATUS_CONFIG: Record<
-  OrderStatus,
-  { label: string; className: string }
-> = {
+const ORDER_STATUS_CONFIG: Record<OrderStatus,{ label: string; className: string }> = {
   en_attente: {
     label: "En attente",
     className: "bg-amber-100 text-amber-800 border-amber-200",
   },
+  confirmee: {
+    label: "Confirmée",
+    className: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  expediee: {
+    label: "Expédiée",
+    className: "bg-purple-100 text-purple-800 border-purple-200",
+  },
   livree: {
     label: "Livrée",
     className: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  },
+  annulee: {
+    label: "Annulée",
+    className: "bg-red-100 text-red-800 border-red-200",
   },
 };
 
