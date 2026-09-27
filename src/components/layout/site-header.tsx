@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 
 import { CartIndicator } from "@/components/layout/cart-indicator";
-import { categories } from "@/data/categories";
+import { Category } from "@/domain/product/category";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -33,8 +34,21 @@ import { Button } from "@/components/ui/button";
 const LOGO_URL =
   "https://id-preview--89fb583a-6b7f-4f84-82a4-5d90f9dc2778.lovable.app/__l5e/assets-v1/22829d72-7d03-43dd-aff0-1753c7284d82/logo-lingerie.png";
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  categories?: Category[];
+}
+
+export function SiteHeader({ categories: initialCategories }: SiteHeaderProps = {}) {
+  const [categories, setCategories] = React.useState<Category[]>(initialCategories ?? []);
   const [isOpen, setIsOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategories(initialCategories);
+    } else {
+      productRepository.findCategories().then(setCategories).catch(() => {});
+    }
+  }, [initialCategories]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -155,11 +169,11 @@ export function SiteHeader() {
                       </NavigationMenuContent>
                     </>
                   ) : (
-                    <Link href={`/categorie/${category.slug}`} legacyBehavior passHref>
-                      <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-transparent text-foreground/80 hover:text-foreground hover:bg-accent/50 focus:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring`}>
+                    <NavigationMenuLink asChild>
+                      <Link href={`/categorie/${category.slug}`} className={`${navigationMenuTriggerStyle()} bg-transparent text-foreground/80 hover:text-foreground hover:bg-accent/50 focus:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring`}>
                         {category.name}
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   )}
                 </NavigationMenuItem>
               ))}

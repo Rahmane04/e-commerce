@@ -19,11 +19,19 @@ class OrderController extends Controller
             'id' => $order->id,
             'status' => $order->status->value,
             'customerName' => $order->customerName,
+            'customerPhone' => $order->customerPhone,
+            'customerEmail' => $order->customerEmail,
+            'deliveryAddress' => $order->deliveryAddress,
+            'deliveryNotes' => $order->deliveryNotes,
             'totalCents' => $order->total()->toCents(),
+            'createdAt' => $order->createdAt ?? date('c'),
             'items' => array_map(fn ($i) => [
+                'productId' => (string) $i->productId,
                 'productName' => $i->productName,
                 'quantity' => $i->quantity,
                 'unitPriceCents' => $i->unitPrice->toCents(),
+                'variantId' => $i->variantId !== null ? (string) $i->variantId : null,
+                'variantLabel' => $i->variantLabel,
             ], $order->items),
         ];
     }

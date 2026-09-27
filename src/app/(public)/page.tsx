@@ -1,30 +1,11 @@
-"use client";
-
 import Link from "next/link";
 import { Star, Truck, ShieldCheck, Sparkles } from "lucide-react";
 
-import { categoryVisuals } from "@/data/category-visuals";
-import { products } from "@/data/products";
+import { categoryVisuals } from "@/lib/category-visuals";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import { Money } from "@/domain/shared/money";
 import { productDiscountPercentage } from "@/domain/product/product";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
-
-const FEATURED_PRODUCTS = products.filter((p) => p.featured).slice(0, 8);
-
-// ---------------------------------------------------------------------------
-// ASSETS
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// MOCK DATA — remplace par l'appel API Laravel quand le back sera branché
-// ---------------------------------------------------------------------------
-const CATEGORIES = [
-  { name: "Vêtements", slug: "vetements", image: categoryVisuals["vetements"].heroImage },
-  { name: "Lingerie", slug: "lingerie", image: categoryVisuals["lingerie"].heroImage },
-  { name: "Linge de maison", slug: "linge-de-maison", image: categoryVisuals["linge-de-maison"].heroImage },
-  { name: "Encens & Parfums", slug: "encens-parfums", image: categoryVisuals["encens-parfums"].heroImage },
-  { name: "Accessoires", slug: "accessoires", image: categoryVisuals["accessoires"].heroImage },
-];
 
 const TESTIMONIALS = [
   {
@@ -45,7 +26,27 @@ function formatPrice(cfa: number) {
   return new Intl.NumberFormat("fr-FR").format(cfa) + " FCFA";
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [featuredProducts, categories] = await Promise.all([
+    productRepository.findFeatured().catch(() => []),
+    productRepository.findCategories().catch(() => []),
+  ]);
+
+  const displayCategories = categories.length > 0
+    ? categories.map((cat) => ({
+        name: cat.name,
+        slug: cat.slug,
+        image: categoryVisuals[cat.slug]?.heroImage ?? categoryVisuals["vetements"].heroImage,
+      }))
+    : [
+        { name: "Vêtements", slug: "vetements", image: categoryVisuals["vetements"].heroImage },
+        { name: "Lingerie", slug: "lingerie", image: categoryVisuals["lingerie"].heroImage },
+        { name: "Linge de maison", slug: "linge-de-maison", image: categoryVisuals["linge-de-maison"].heroImage },
+        { name: "Encens & Parfums", slug: "encens-parfums", image: categoryVisuals["encens-parfums"].heroImage },
+        { name: "Accessoires", slug: "accessoires", image: categoryVisuals["accessoires"].heroImage },
+      ];
+
+  const featured = featuredProducts.slice(0, 8);
   return (
     <div className="min-h-screen bg-[#fcfbf8] text-[#1a1a2e]">
       {/* Hero */}
@@ -131,7 +132,7 @@ export default function HomePage() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map((cat) => (
+          {displayCategories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/categorie/${cat.slug}`}
@@ -168,7 +169,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-            {FEATURED_PRODUCTS.map((product) => {
+            {featured.map((product) => {
               const price = Money.fromCents(product.priceCents).format();
               const oldPrice = product.compareAtPriceCents
                 ? Money.fromCents(product.compareAtPriceCents).format()

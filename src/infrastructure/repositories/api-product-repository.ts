@@ -22,12 +22,21 @@ interface ApiProduct {
   createdAt: string;
 }
 
-interface ApiCategory {
+interface ApiSubCategory {
   id: number;
   slug: string;
   name: string;
   description: string | null;
 }
+
+interface ApiCategory {
+  id: number;
+  slug: string;
+  name: string;
+  description: string | null;
+  subcategories: ApiSubCategory[];
+}
+
 
 function toDomainProduct(api: ApiProduct): Product {
   return {
@@ -48,9 +57,16 @@ function toDomainProduct(api: ApiProduct): Product {
 }
 
 function toDomainCategory(api: ApiCategory): Category {
-  return { slug: api.slug, name: api.name, description: api.description ?? undefined };
+  return {
+    slug: api.slug,
+    name: api.name,
+    description: api.description ?? undefined,
+    subcategories: api.subcategories.map((sub) => ({
+      slug: sub.slug,
+      name: sub.name,
+    })),
+  };
 }
-
 /** Requête authentifiée : attache le Bearer token pour les routes admin protégées. */
 async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const token = getAuthToken();

@@ -1,3 +1,4 @@
+// TODO: backend Promotion pas encore construit — reste mocké volontairement
 import { PromotionRepository } from "@/application/ports/promotion-repository";
 import { Promotion } from "@/domain/promotion/promotion";
 import { mockPromotions } from "@/data/mock-promotions";

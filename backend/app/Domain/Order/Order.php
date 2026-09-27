@@ -17,6 +17,7 @@ final class Order
         public readonly ?string $deliveryNotes,
         public readonly OrderStatus $status,
         public readonly array $items,
+        public readonly ?string $createdAt = null,
     ) {}
 
     public function total(): Money

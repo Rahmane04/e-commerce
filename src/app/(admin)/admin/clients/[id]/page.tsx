@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, MapPin, Phone, Mail, FileText, ShoppingCart, Calendar } from "lucide-react";
-import { orderRepository } from "@/infrastructure/repositories/mock-order-repository";
+import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
 import { Customer } from "@/domain/customer/customer";
 import { Order } from "@/domain/order/order";
 import { OrderStatusBadge } from "@/components/admin/ui/status-badge";
@@ -19,7 +19,6 @@ function formatDate(iso: string) {
   });
 }
 
-// Pour V1 mockée
 interface CustomerProfile extends Customer {
   id: string;
   orders: Order[];
@@ -36,9 +35,9 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     orderRepository.findAll().then((allOrders) => {
-      // Retrouver le client par son "id" (téléphone sans espaces en V1)
+      // Retrouver le client par son "id" (téléphone sans espaces ou ID commande)
       const customerOrders = allOrders.filter(
-        (o) => o.customer.phone.replace(/\s/g, '') === id
+        (o) => (o.customer?.phone || '').replace(/\s/g, '') === id || String(o.id) === id
       );
 
       if (customerOrders.length > 0) {
@@ -55,7 +54,13 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
           .reduce((sum, o) => sum + o.totalCents, 0);
 
         setProfile({
-          ...customerOrders[0].customer, // Prendre les infos de la dernière commande trouvée (arbitraire pour la démo)
+          fullName: customerOrders[0].customer?.fullName || "Client inconnu",
+          phone: customerOrders[0].customer?.phone || "",
+          email: customerOrders[0].customer?.email,
+          city: customerOrders[0].customer?.city || "",
+          address: customerOrders[0].customer?.address || "",
+          landmark: customerOrders[0].customer?.landmark,
+          notes: customerOrders[0].customer?.notes,
           id,
           orders: displayOrders,
           totalSpent,
@@ -121,7 +126,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
               <div>
                 <h2 className="text-lg font-semibold text-slate-900">{profile.fullName}</h2>
                 <a 
-                  href={`https://wa.me/${profile.phone.replace(/\D/g, '')}?text=${wpMessage}`}
+                  href={`https://wa.me/${(profile.phone || '').replace(/\D/g, '')}?text=${wpMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-1 inline-flex text-xs font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"

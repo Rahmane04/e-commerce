@@ -24,7 +24,7 @@ import { StatCard } from "@/components/admin/ui/stat-card";
 import { SkeletonCard } from "@/components/admin/ui/skeleton-table";
 import { OrderStatusBadge } from "@/components/admin/ui/status-badge";
 import { productRepository } from "@/infrastructure/repositories/api-product-repository";
-import { orderRepository } from "@/infrastructure/repositories/mock-order-repository";
+import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
 import { Product } from "@/domain/product/product";
 import { Order } from "@/domain/order/order";
 import Link from "next/link";

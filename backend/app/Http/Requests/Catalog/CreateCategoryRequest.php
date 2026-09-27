@@ -16,6 +16,7 @@ class CreateCategoryRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'display_order' => ['nullable', 'integer', 'min:0'],
+            'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Search, Filter } from "lucide-react";
-import { orderRepository } from "@/infrastructure/repositories/mock-order-repository";
+import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
 import { Order, OrderStatus } from "@/domain/order/order";
 import { OrderStatusBadge } from "@/components/admin/ui/status-badge";
 import { EmptyState } from "@/components/admin/ui/empty-state";

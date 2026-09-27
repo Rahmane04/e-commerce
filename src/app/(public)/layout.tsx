@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { CookieConsent } from "@/components/layout/cookie-consent";
 import { Toaster } from "sonner";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 
 // Display face: Playfair Display for elegant headings
 const playfair = Playfair_Display({
@@ -55,7 +56,9 @@ export const viewport: Viewport = {
   themeColor: "#faf7f3",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const categories = await productRepository.findCategories().catch(() => []);
+
   return (
     <html
       lang="fr"
@@ -66,7 +69,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main-content" className="skip-to-content">
           Aller au contenu principal
         </a>
-        <SiteHeader />
+        <SiteHeader categories={categories} />
         <main id="main-content" tabIndex={-1} className="flex-1">
           {children}
         </main>

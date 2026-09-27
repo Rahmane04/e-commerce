@@ -7,5 +7,6 @@ final class CreateCategoryCommand
         public readonly string $name,
         public readonly ?string $description,
         public readonly int $displayOrder = 0,
+        public readonly ?int $parentId = null,
     ) {}
 }
