@@ -9,5 +9,6 @@ final class Category
         public readonly string $name,
         public readonly ?string $description,
         public readonly int $displayOrder,
+        public readonly ?int $parentId,
     ) {}
 }

@@ -13,6 +13,7 @@ class CategoryMapper
             name: $model->name,
             description: $model->description,
             displayOrder: $model->display_order,
+            parentId: $model->parent_id,
         ); 
     }
 }

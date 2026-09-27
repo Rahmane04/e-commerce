@@ -7,7 +7,6 @@ import {
 } from "@/domain/product/product";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductClient } from "@/components/product/product-client";
-import { categories } from "@/data/categories";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Metadata } from "next";
@@ -33,7 +32,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = await productRepository.findBySlug(slug);
+  const [product, categories] = await Promise.all([
+    productRepository.findBySlug(slug),
+    productRepository.findCategories().catch(() => []),
+  ]);
 
   if (!product) notFound();
 

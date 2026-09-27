@@ -1,6 +1,7 @@
 import { Cart, cartTotal } from "@/domain/cart/cart";
 import { Customer } from "@/domain/customer/customer";
 import { Money } from "@/domain/shared/money";
+import { OrderRepository } from "@/application/ports/order-repository";
 
 export type OrderStatus =
   | "en_attente"
@@ -18,6 +19,7 @@ export interface StatusChange {
 export interface OrderItem {
   productId: string;
   productName: string;
+  variantId?: string;
   variantLabel?: string;
   quantity: number;
   priceCents: number;
@@ -57,7 +59,11 @@ export function getNextStatuses(current: OrderStatus): OrderStatus[] {
   return ORDER_TRANSITIONS[current];
 }
 
-export function placeOrder(cart: Cart, customer: Customer): Order {
+export async function placeOrder(
+  repo: OrderRepository,
+  cart: Cart,
+  customer: Customer,
+): Promise<Order> {
   if (cart.items.length === 0) {
     throw new Error("Le panier est vide.");
   }
@@ -65,6 +71,7 @@ export function placeOrder(cart: Cart, customer: Customer): Order {
   const items: OrderItem[] = cart.items.map((item) => ({
     productId: item.productId,
     productName: item.productName,
+    variantId: item.variantId,
     variantLabel: item.variantLabel,
     quantity: item.quantity,
     priceCents: item.priceCents,
@@ -72,8 +79,8 @@ export function placeOrder(cart: Cart, customer: Customer): Order {
 
   const now = new Date().toISOString();
 
-  return {
-    id: `CMD-${Date.now()}`,
+  const provisional: Order = {
+    id: "",
     items,
     customer,
     totalCents: cartTotal(cart).toCents(),
@@ -81,6 +88,8 @@ export function placeOrder(cart: Cart, customer: Customer): Order {
     statusHistory: [{ status: "en_attente", changedAt: now }],
     createdAt: now,
   };
+
+  return repo.create(provisional);
 }
 
 export function formatOrderForWhatsApp(order: Order): string {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Search, Users } from "lucide-react";
-import { orderRepository } from "@/infrastructure/repositories/mock-order-repository";
+import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
 import { Customer } from "@/domain/customer/customer";
 import { Order } from "@/domain/order/order";
 import { EmptyState } from "@/components/admin/ui/empty-state";
@@ -14,7 +14,7 @@ function formatFCFA(cents: number) {
   return (cents / 100).toLocaleString("fr-FR") + " F";
 }
 
-// Pour la liste des clients, on agrège les commandes mockées
+// Pour la liste des clients, on agrège les commandes
 // Dans un vrai backend, il y aurait un CustomerRepository avec `findAllCustomers()`
 interface CustomerSummary extends Customer {
   id: string; // phone is used as ID here for mock simplicity
@@ -30,14 +30,20 @@ export default function ClientsPage() {
 
   useEffect(() => {
     orderRepository.findAll().then((ords) => {
-      // Agrégation par numéro de téléphone (utilisé comme ID unique en V1 mockée)
+      // Agrégation par numéro de téléphone
       const customerMap = new Map<string, CustomerSummary>();
       
       ords.forEach((order) => {
-        const id = order.customer.phone.replace(/\s/g, ''); // phone sans espaces
+        const id = (order.customer?.phone || '').replace(/\s/g, '') || String(order.id);
         if (!customerMap.has(id)) {
           customerMap.set(id, {
-            ...order.customer,
+            fullName: order.customer?.fullName || "Client inconnu",
+            phone: order.customer?.phone || "",
+            email: order.customer?.email,
+            city: order.customer?.city || "",
+            address: order.customer?.address || "",
+            landmark: order.customer?.landmark,
+            notes: order.customer?.notes,
             id,
             orderCount: 0,
             totalSpent: 0,

@@ -26,6 +26,7 @@ class OrderMapper
                 unitPrice: Money::fromCents($i->unit_price_cents),
                 quantity: $i->quantity,
             ))->all(),
+            createdAt: $model->created_at?->toIso8601String(),
         );
     }
 }

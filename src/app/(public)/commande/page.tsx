@@ -8,14 +8,17 @@ import { CheckoutSummary } from "@/components/checkout/checkout-summary";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { Customer } from "@/domain/customer/customer";
 import { placeOrder, formatOrderForWhatsApp, Order } from "@/domain/order/order";
+import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, CheckCircle2, MessageCircle, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 0);
@@ -39,14 +42,17 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleOrderSubmit = (customer: Customer) => {
+  const handleOrderSubmit = async (customer: Customer) => {
+    setIsSubmitting(true);
     try {
-      const newOrder = placeOrder(cart, customer);
+      const newOrder = await placeOrder(orderRepository, cart, customer);
       setOrder(newOrder);
-      // In a real app, we would clear the cart here or after backend confirmation.
-      // useCartStore.getState().clearCart();
-    } catch (error) {
+      useCartStore.getState().clearCart();
+    } catch (error: any) {
       console.error("Erreur lors de la création de la commande", error);
+      toast.error(error?.message ?? "Une erreur est survenue lors de la création de la commande.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

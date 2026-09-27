@@ -25,6 +25,7 @@ interface CartState {
   removeItem: (itemId: string) => void;
   setQuantity: (itemId: string, quantity: number) => void;
   clearError: () => void;
+  clearCart: () => void;
 }
 
 /**
@@ -66,6 +67,8 @@ export const useCartStore = create<CartState>()(
       },
 
       clearError: () => set({ error: null }),
+
+      clearCart: () => set({ cart: emptyCart() }),
     }),
     {
       name: "boutique-cart",

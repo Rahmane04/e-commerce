@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, MapPin, Phone, Mail, FileText, CheckCircle2 } from "lucide-react";
-import { orderRepository } from "@/infrastructure/repositories/mock-order-repository";
+import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
 import { getOrderById, updateOrderStatus } from "@/application/admin/order-admin-use-cases";
 import { Order, OrderStatus, getNextStatuses, getStatusLabel } from "@/domain/order/order";
 import { OrderStatusBadge } from "@/components/admin/ui/status-badge";
@@ -188,7 +188,7 @@ export default function CommandeDetailPage({ params }: { params: Promise<{ id: s
             <h2 className="mb-4 text-sm font-semibold text-slate-700 flex items-center justify-between">
               Client
               <a 
-                href={`https://wa.me/${order.customer.phone.replace(/\D/g, '')}?text=${wpMessage}`}
+                href={`https://wa.me/${(order.customer.phone || '').replace(/\D/g, '')}?text=${wpMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-medium text-emerald-600 hover:text-emerald-700 border border-emerald-200 bg-emerald-50 px-2 py-1 rounded"

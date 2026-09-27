@@ -16,6 +16,7 @@ class CreateCategoryUseCase
             'name' => $command->name,
             'description' => $command->description,
             'display_order' => $command->displayOrder,
+            'parent_id' => $command->parentId,
         ]);
     }
 

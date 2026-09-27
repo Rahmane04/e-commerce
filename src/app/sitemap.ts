@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
+import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 
-import { categories } from "@/data/categories";
-import { products } from "@/data/products";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.linguerebi.sn";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.linguerebi.sn"; // TODO: remplacer par l'URL de production
+  const [categories, products] = await Promise.all([
+    productRepository.findCategories().catch(() => []),
+    productRepository.findAll().catch(() => []),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteUrl, changeFrequency: "weekly", priority: 1 },

@@ -10,13 +10,23 @@ class CategoryController extends Controller
 {
     public function index(CategoryRepositoryInterface $repository)
     {
-        $categories = $repository->findAll();
-        return response()->json(array_map(fn ($c) => [
-            'id' => $c->id,
-            'slug' => $c->slug,
-            'name' => $c->name,
-            'description' => $c->description,
-        ], $categories));
+        $all = $repository->findAll();
+
+        $roots = array_values(array_filter($all, fn ($c) => $c->parentId === null));
+        $childrenOf = fn (int $parentId) => array_values(array_filter($all, fn ($c) => $c->parentId === $parentId));
+
+        return response()->json(array_map(fn ($root) => [
+            'id' => $root->id,
+            'slug' => $root->slug,
+            'name' => $root->name,
+            'description' => $root->description,
+            'subcategories' => array_map(fn ($child) => [
+                'id' => $child->id,
+                'slug' => $child->slug,
+                'name' => $child->name,
+                'description' => $child->description,
+            ], $childrenOf($root->id)),
+        ], $roots));
     }
 
     public function store(CreateCategoryRequest $request, CreateCategoryUseCase $useCase)
@@ -25,6 +35,7 @@ class CategoryController extends Controller
             name: $request->string('name')->toString(),
             description: $request->input('description'),
             displayOrder: (int) $request->integer('display_order'),
+            parentId: $request->has('parent_id') ? (int) $request->integer('parent_id') : null,
         );
 
         $category = $useCase->execute($command);

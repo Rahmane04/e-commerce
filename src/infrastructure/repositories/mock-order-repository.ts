@@ -69,8 +69,25 @@ export class MockOrderRepository implements OrderRepository {
 
   async create(order: Order): Promise<Order> {
     await this.delay(200);
-    this.orders = [order, ...this.orders];
-    return order;
+    const created = { ...order, id: order.id || `CMD-${Date.now()}` };
+    this.orders = [created, ...this.orders];
+    return created;
+  }
+
+  async confirm(id: string): Promise<Order> {
+    return this.updateStatus(id, "confirmee");
+  }
+
+  async ship(id: string): Promise<Order> {
+    return this.updateStatus(id, "expediee");
+  }
+
+  async deliver(id: string): Promise<Order> {
+    return this.updateStatus(id, "livree");
+  }
+
+  async cancel(id: string): Promise<Order> {
+    return this.updateStatus(id, "annulee");
   }
 }
 
