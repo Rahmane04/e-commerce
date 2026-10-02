@@ -14,30 +14,51 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\CreateProductRequest;
 use App\Http\Requests\Catalog\UpdateProductRequest;
 use Illuminate\Http\Request;
-use App\Application\Catalog\UseCases\DeleteProduct\DeleteProductUseCase;
 
 class ProductController extends Controller
 {
     public function __construct(private CategoryRepositoryInterface $categories) {}
 
-    /** @return array<int, string> id de catégorie => slug */
-    private function categorySlugMap(): array
+    /**
+     * Pour chaque id de catégorie : sa racine (toujours) et sa
+     * sous-catégorie (null si c'est déjà une racine).
+     * @return array<int, array{categorySlug: string, subcategorySlug: ?string}>
+     */
+    private function categoryHierarchyMap(): array
     {
-        $map = [];
-        foreach ($this->categories->findAll() as $category) {
-            $map[$category->id] = $category->slug;
+        $all = $this->categories->findAll();
+        $byId = [];
+        foreach ($all as $c) {
+            $byId[$c->id] = $c;
         }
+
+        $map = [];
+        foreach ($all as $c) {
+            if ($c->parentId === null) {
+                $map[$c->id] = ['categorySlug' => $c->slug, 'subcategorySlug' => null];
+            } else {
+                $parent = $byId[$c->parentId] ?? null;
+                $map[$c->id] = [
+                    'categorySlug' => $parent?->slug ?? $c->slug,
+                    'subcategorySlug' => $c->slug,
+                ];
+            }
+        }
+
         return $map;
     }
 
-    private function toJson(Product $p, array $categorySlugs): array
+    private function toJson(Product $p, array $hierarchy): array
     {
+        $resolved = $hierarchy[$p->categoryId] ?? ['categorySlug' => null, 'subcategorySlug' => null];
+
         return [
             'id' => (string) $p->id,
             'slug' => $p->slug,
             'name' => $p->name,
             'description' => $p->description,
-            'categorySlug' => $categorySlugs[$p->categoryId] ?? null,
+            'categorySlug' => $resolved['categorySlug'],
+            'subcategorySlug' => $resolved['subcategorySlug'],
             'priceCents' => $p->price->toCents(),
             'compareAtPriceCents' => $p->compareAtPrice?->toCents(),
             'images' => array_map(fn ($url) => ['url' => $url, 'alt' => $p->name], $p->images),
@@ -58,13 +79,13 @@ class ProductController extends Controller
     public function index(Request $request, ListProductsUseCase $useCase)
     {
         $products = $useCase->execute();
-        $categorySlugs = $this->categorySlugMap();
+        $hierarchy = $this->categoryHierarchyMap();
 
         if ($request->filled('category')) {
             $target = $request->string('category')->toString();
             $products = array_values(array_filter(
                 $products,
-                fn ($p) => ($categorySlugs[$p->categoryId] ?? null) === $target
+                fn ($p) => ($hierarchy[$p->categoryId]['categorySlug'] ?? null) === $target
             ));
         }
 
@@ -81,7 +102,7 @@ class ProductController extends Controller
             ));
         }
 
-        return response()->json(array_map(fn ($p) => $this->toJson($p, $categorySlugs), $products));
+        return response()->json(array_map(fn ($p) => $this->toJson($p, $hierarchy), $products));
     }
 
     public function show(string $slug, ProductRepositoryInterface $repository)
@@ -90,7 +111,16 @@ class ProductController extends Controller
         if ($product === null) {
             throw new ProductNotFoundException();
         }
-        return response()->json($this->toJson($product, $this->categorySlugMap()));
+        return response()->json($this->toJson($product, $this->categoryHierarchyMap()));
+    }
+
+    public function showById(int $id, ProductRepositoryInterface $repository)
+    {
+        $product = $repository->findById($id);
+        if ($product === null) {
+            throw new ProductNotFoundException();
+        }
+        return response()->json($this->toJson($product, $this->categoryHierarchyMap()));
     }
 
     public function store(CreateProductRequest $request, CreateProductUseCase $useCase)
@@ -143,19 +173,5 @@ class ProductController extends Controller
     {
         $product = $useCase->execute($id);
         return response()->json(['id' => $product->id, 'isPublished' => $product->isPublished]);
-    }
-    public function showById(int $id, ProductRepositoryInterface $repository)
-    {
-        $product = $repository->findById($id);
-        if ($product === null) {
-            throw new \App\Domain\Catalog\Exceptions\ProductNotFoundException();
-        }
-        return response()->json($this->toJson($product, $this->categorySlugMap()));
-    }
-
-    public function destroy(int $id, DeleteProductUseCase $useCase)
-    {
-        $useCase->execute($id);
-        return response()->json(null, 204);
     }
 }

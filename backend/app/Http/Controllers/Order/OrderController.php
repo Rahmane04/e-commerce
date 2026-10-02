@@ -24,17 +24,17 @@ class OrderController extends Controller
             'deliveryAddress' => $order->deliveryAddress,
             'deliveryNotes' => $order->deliveryNotes,
             'totalCents' => $order->total()->toCents(),
-            'createdAt' => $order->createdAt ?? date('c'),
+            'createdAt' => $order->createdAt,
             'items' => array_map(fn ($i) => [
-                'productId' => (string) $i->productId,
+                'productId' => $i->productId,
+                'variantId' => $i->variantId,
                 'productName' => $i->productName,
+                'variantLabel' => $i->variantLabel,
                 'quantity' => $i->quantity,
                 'unitPriceCents' => $i->unitPrice->toCents(),
-                'variantId' => $i->variantId !== null ? (string) $i->variantId : null,
-                'variantLabel' => $i->variantLabel,
-            ], $order->items),
-        ];
-    }
+                ], $order->items),
+                ];
+        }
 
     public function index(OrderRepositoryInterface $orders)
     {

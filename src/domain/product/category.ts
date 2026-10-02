@@ -13,3 +13,4 @@ export interface Category {
   description?: string;
   subcategories?: SubCategory[];
 }
+ 

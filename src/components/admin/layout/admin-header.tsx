@@ -6,6 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu, LogOut, Home, ChevronRight } from "lucide-react";
 import { AdminSidebar } from "./admin-sidebar";
 import { cn } from "@/lib/utils";
+import { clearAuthToken } from "@/infrastructure/auth/auth-token";
+import { authedFetch } from "@/infrastructure/http/authed-fetch";
+
 
 // Map slug → label pour le breadcrumb
 const ROUTE_LABELS: Record<string, string> = {
@@ -36,15 +39,14 @@ export function AdminHeader() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const router = useRouter();
   const crumbs = useBreadcrumb();
-
-  const handleLogout = () => {
-    // V1 : suppression du flag de session local, redirect login
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("admin_authenticated");
-    }
-    router.push("/admin/login");
-  };
-
+  
+  const handleLogout = async () => {
+    try {
+      await authedFetch("/logout", { method: "POST" });
+    } catch {}
+  clearAuthToken();
+  router.push("/admin/login");
+};
   return (
     <>
       {/* Header bar */}

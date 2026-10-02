@@ -17,6 +17,7 @@ class OrderMapper
             deliveryAddress: $model->delivery_address,
             deliveryNotes: $model->delivery_notes,
             status: OrderStatus::from($model->status),
+            createdAt: $model->created_at->toIso8601String(),
             items: $model->items->map(fn (OrderItemModel $i) => new OrderItem(
                 productId: $i->product_id,
                 variantId: $i->variant_id,
@@ -26,7 +27,6 @@ class OrderMapper
                 unitPrice: Money::fromCents($i->unit_price_cents),
                 quantity: $i->quantity,
             ))->all(),
-            createdAt: $model->created_at?->toIso8601String(),
         );
     }
 }
