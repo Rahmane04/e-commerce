@@ -11,6 +11,7 @@ interface ApiProduct {
   name: string;
   description: string;
   categorySlug: string | null;
+  subcategorySlug: string | null;
   priceCents: number;
   compareAtPriceCents: number | null;
   images: { url: string; alt: string }[];
@@ -45,6 +46,7 @@ function toDomainProduct(api: ApiProduct): Product {
     name: api.name,
     description: api.description,
     categorySlug: api.categorySlug ?? "",
+    subcategorySlug: api.subcategorySlug ?? undefined,
     priceCents: api.priceCents,
     compareAtPriceCents: api.compareAtPriceCents ?? undefined,
     images: api.images,

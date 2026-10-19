@@ -11,7 +11,7 @@ class CreateProductUseCase
 
     public function execute(CreateProductCommand $command): Product
     {
-        return $this->repository->create([
+        $product = $this->repository->create([
             'slug' => $this->generateUniqueSlug($command->name),
             'name' => $command->name,
             'description' => $command->description,
@@ -24,6 +24,13 @@ class CreateProductUseCase
             'is_new' => $command->isNew,
             'variants' => $command->variants,
         ]);
+
+        // Règle métier portée par le domaine : un produit publiable l'est d'office.
+        if ($product->canBePublished()) {
+            return $this->repository->publish($product->id);
+        }
+
+        return $product;
     }
 
     private function generateUniqueSlug(string $name): string
@@ -32,7 +39,6 @@ class CreateProductUseCase
         $slug = $base;
         $suffix = 2;
 
-        // Si "robe-wax" existe déjà, on essaie "robe-wax-2", "robe-wax-3"...
         while ($this->repository->findBySlug($slug) !== null) {
             $slug = "{$base}-{$suffix}";
             $suffix++;

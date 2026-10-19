@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-
-const DEMO_EMAIL = "admin@boutique.sn";
-const DEMO_PASSWORD = "admin1234";
+import { setAuthToken } from "@/infrastructure/auth/auth-token";
+import { publicFetch } from "@/infrastructure/http/authed-fetch";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,15 +20,18 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // Simule une latence réseau
-    await new Promise((r) => setTimeout(r, 600));
-
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      sessionStorage.setItem("admin_authenticated", "true");
+    try {
+      const res = await publicFetch("/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      setAuthToken(data.token);
       toast.success("Connexion réussie");
       router.push("/admin");
-    } else {
+    } catch {
       setError("Email ou mot de passe incorrect.");
+    } finally {
       setLoading(false);
     }
   };
@@ -37,7 +39,6 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-xl font-bold text-white">
             A
@@ -51,20 +52,9 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          {/* Bandeau démo */}
-          <div className="mb-5 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3">
-            <p className="text-xs font-medium text-blue-700">
-              Compte démo : {DEMO_EMAIL} / {DEMO_PASSWORD}
-            </p>
-          </div>
-
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-            {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="admin-email"
-                className="text-sm font-medium text-slate-700"
-              >
+              <label htmlFor="admin-email" className="text-sm font-medium text-slate-700">
                 Email
               </label>
               <div className="relative">
@@ -76,18 +66,14 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@boutique.sn"
+                  placeholder="admin@laboutique.sn"
                   className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
                 />
               </div>
             </div>
 
-            {/* Mot de passe */}
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="admin-password"
-                className="text-sm font-medium text-slate-700"
-              >
+              <label htmlFor="admin-password" className="text-sm font-medium text-slate-700">
                 Mot de passe
               </label>
               <div className="relative">
@@ -108,27 +94,18 @@ export default function LoginPage() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Erreur */}
             {error && (
-              <div
-                role="alert"
-                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-              >
+              <div role="alert" className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 {error}
               </div>
             )}
 
-            {/* Bouton */}
             <button
               type="submit"
               disabled={loading}
