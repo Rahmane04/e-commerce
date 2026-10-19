@@ -2,10 +2,12 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { toast } from "sonner";
 import { Product, ProductVariant, ProductImage } from "@/domain/product/product";
 import { productRepository } from "@/infrastructure/repositories/api-product-repository";
+import { uploadProductImage } from "@/infrastructure/http/upload-image";
 import { Category } from "@/domain/product/category";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
+import { Plus, Trash2, AlertCircle, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type FormValues = {
@@ -30,6 +32,9 @@ interface ProductFormProps {
   submitLabel: ReactNode;
 }
 
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 Mo, comme la validation côté Laravel
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
@@ -47,6 +52,7 @@ export function ProductForm({
   submitLabel,
 }: ProductFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     productRepository.findCategories().then(setCategories);
@@ -57,6 +63,7 @@ export function ProductForm({
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -93,8 +100,39 @@ export function ProductForm({
 
   const selectedCategory = watch("categorySlug");
   const selectedCat = categories.find((c) => c.slug === selectedCategory);
+  const watchedImages = watch("images");
 
-  const handleFormSubmit = (values: FormValues) => {
+  const handleFileChange = async (index: number, file: File | undefined) => {
+    if (!file) return;
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      toast.error("Format non pris en charge (JPG, PNG ou WebP uniquement).");
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Photo trop lourde (5 Mo maximum).");
+      return;
+    }
+
+    setUploadingIndex(index);
+    try {
+      const url = await uploadProductImage(file);
+      setValue(`images.${index}.url`, url, { shouldDirty: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "L'envoi de la photo a échoué.");
+    } finally {
+      setUploadingIndex(null);
+    }
+  };
+
+  const handleFormSubmit = async (values: FormValues) => {
+    // Garde-fou : un produit sans photo ne pourrait pas être publié côté Laravel.
+    const images = values.images.filter((img) => img.url.trim()) as ProductImage[];
+    if (images.length === 0) {
+      toast.error("Ajoutez au moins une photo avant d'enregistrer le produit.");
+      return;
+    }
+
     const data: Omit<Product, "id" | "createdAt"> = {
       name: values.name,
       slug: values.slug || values.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
@@ -108,7 +146,7 @@ export function ProductForm({
       stock: Number(values.stock),
       featured: values.featured,
       isNew: values.isNew,
-      images: values.images.filter((img) => img.url.trim()) as ProductImage[],
+      images,
       variants: values.variants.map((v): ProductVariant => ({
         id: v.id || v.value.toLowerCase(),
         label: v.label,
@@ -192,34 +230,87 @@ export function ProductForm({
               </button>
             </div>
             <div className="flex flex-col gap-3">
-              {imageFields.map((field, i) => (
-                <div key={field.id} className="flex gap-2">
-                  <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-                    <input
-                      type="url"
-                      {...register(`images.${i}.url`)}
-                      className={cn(inputClass, "flex-1")}
-                      placeholder="https://… ou /images/…"
-                    />
-                    <input
-                      type="text"
-                      {...register(`images.${i}.alt`)}
-                      className={cn(inputClass, "sm:w-40")}
-                      placeholder="Texte alternatif"
-                    />
+              {imageFields.map((field, i) => {
+                const currentUrl = watchedImages?.[i]?.url ?? "";
+                const currentAlt = watchedImages?.[i]?.alt ?? "";
+                const isUploading = uploadingIndex === i;
+
+                return (
+                  <div key={field.id} className="flex gap-3 rounded-lg border border-slate-100 p-3">
+                    {/* Aperçu */}
+                    <div className="flex h-24 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-100">
+                      {currentUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={currentUrl}
+                          alt={currentAlt || "Aperçu de la photo"}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="px-1 text-center text-[10px] text-slate-400">
+                          Aucune photo
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-within:ring-2 focus-within:ring-slate-300">
+                          {isUploading ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Upload className="h-3.5 w-3.5" />
+                          )}
+                          {isUploading
+                            ? "Envoi…"
+                            : currentUrl
+                              ? "Remplacer la photo"
+                              : "Choisir une photo"}
+                          <input
+                            type="file"
+                            accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                            className="sr-only"
+                            disabled={isUploading}
+                            onChange={(e) => {
+                              handleFileChange(i, e.target.files?.[0]);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                        <span className="text-[11px] text-slate-400">
+                          JPG, PNG ou WebP · 5 Mo max
+                        </span>
+                      </div>
+
+                      <input
+                        type="text"
+                        {...register(`images.${i}.url`)}
+                        className={inputClass}
+                        placeholder="…ou collez l'adresse d'une image (https://…)"
+                        aria-label="Adresse de l'image"
+                      />
+                      <input
+                        type="text"
+                        {...register(`images.${i}.alt`)}
+                        className={inputClass}
+                        placeholder="Texte alternatif"
+                        aria-label="Texte alternatif de l'image"
+                      />
+                    </div>
+
+                    {imageFields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        className="self-start rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        aria-label="Supprimer cette image"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
-                  {imageFields.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                      aria-label="Supprimer cette image"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
@@ -419,7 +510,7 @@ export function ProductForm({
           {/* Bouton */}
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || uploadingIndex !== null}
             className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-700 disabled:opacity-60"
           >
             {saving ? "Enregistrement…" : submitLabel}
