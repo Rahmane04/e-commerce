@@ -6,6 +6,7 @@ use App\Http\Controllers\Catalog\ProductController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Order\OrderController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Catalog\ImageUploadController;
 
 // --- Public : consultation du catalogue + passage de commande (pas de compte client en V1) ---
 Route::get('/products', [ProductController::class, 'index']);
@@ -40,4 +41,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     Route::patch('/categories/{slug}', [CategoryController::class, 'update']);
     Route::delete('/categories/{slug}', [CategoryController::class, 'destroy']);
+    Route::post('/uploads/images', [ImageUploadController::class, 'store']);
 });

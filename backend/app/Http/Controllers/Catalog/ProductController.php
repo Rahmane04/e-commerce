@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Catalog;
 use App\Application\Catalog\Ports\CategoryRepositoryInterface;
 use App\Application\Catalog\Ports\ProductRepositoryInterface;
 use App\Application\Catalog\UseCases\CreateProduct\{CreateProductCommand, CreateProductUseCase};
+use App\Application\Catalog\UseCases\DeleteProduct\DeleteProductUseCase;
 use App\Application\Catalog\UseCases\ListProducts\ListProductsUseCase;
 use App\Application\Catalog\UseCases\PublishProduct\PublishProductUseCase;
 use App\Application\Catalog\UseCases\UnpublishProduct\UnpublishProductUseCase;
@@ -173,5 +174,11 @@ class ProductController extends Controller
     {
         $product = $useCase->execute($id);
         return response()->json(['id' => $product->id, 'isPublished' => $product->isPublished]);
+    }
+
+    public function destroy(int $id, DeleteProductUseCase $useCase)
+    {
+        $useCase->execute($id);
+        return response()->json(null, 204);
     }
 }
