@@ -145,14 +145,18 @@ export default function ProduitsPage() {
       ),
     },
   ];
-
   const handleDelete = async () => {
-    if (!deleteTarget) return;
+  if (!deleteTarget) return;
+  try {
     await deleteProduct(productRepository, deleteTarget.id);
     toast.success(`"${deleteTarget.name}" supprimé`);
-    setDeleteTarget(null);
     loadData();
-  };
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : "Suppression impossible.");
+  } finally {
+    setDeleteTarget(null);
+  }
+};
 
   return (
     <div className="flex flex-col gap-6">

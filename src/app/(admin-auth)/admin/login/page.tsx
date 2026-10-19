@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { setAuthToken } from "@/infrastructure/auth/auth-token";
+import { setAuthToken, getAuthToken } from "@/infrastructure/auth/auth-token";
 import { publicFetch } from "@/infrastructure/http/authed-fetch";
 
 export default function LoginPage() {
@@ -14,6 +14,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+useEffect(() => {
+  if (getAuthToken()) router.replace("/admin");
+}, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

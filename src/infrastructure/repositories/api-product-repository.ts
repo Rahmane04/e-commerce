@@ -1,9 +1,7 @@
 import { ProductRepository } from "@/application/ports/product-repository";
 import { Product } from "@/domain/product/product";
 import { Category } from "@/domain/product/category";
-import { getAuthToken } from "@/infrastructure/auth/auth-token";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+import { authedFetch, fetchJson } from "@/infrastructure/http/authed-fetch";
 
 interface ApiProduct {
   id: string;
@@ -69,32 +67,6 @@ function toDomainCategory(api: ApiCategory): Category {
     })),
   };
 }
-/** Requête authentifiée : attache le Bearer token pour les routes admin protégées. */
-async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const token = getAuthToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init.headers,
-    },
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Erreur API (${res.status}) sur ${path}`);
-  }
-
-  return res;
-}
-
-async function fetchJson<T>(path: string): Promise<T> {
-  const res = await authedFetch(path);
-  return res.json();
-}
 
 export class ApiProductRepository implements ProductRepository {
   // ── Lecture ────────────────────────────────────────────────────────────
@@ -143,18 +115,21 @@ export class ApiProductRepository implements ProductRepository {
   }
 
   /** Résout un slug de catégorie vers son id numérique côté Laravel. */
-  private async resolveCategoryId(categorySlug: string): Promise<number> {
+  private async resolveCategoryId(categorySlug: string, subcategorySlug?: string): Promise<number> {
     const categories = await fetchJson<ApiCategory[]>("/categories");
-    const match = categories.find((c) => c.slug === categorySlug);
-    if (!match) throw new Error(`Catégorie inconnue: ${categorySlug}`);
-    return match.id;
+    const root = categories.find((c) => c.slug === categorySlug);
+    if (!root) throw new Error(`Catégorie inconnue: ${categorySlug}`);
+    const sub = subcategorySlug
+      ? root.subcategories.find((s) => s.slug === subcategorySlug)
+      : undefined;
+    return (sub ?? root).id;
   }
 
   // ── Écriture produit (admin) ──────────────────────────────────────────
 
   async create(product: Omit<Product, "id" | "createdAt">): Promise<Product> {
-    const categoryId = await this.resolveCategoryId(product.categorySlug);
-
+    const categoryId = await this.resolveCategoryId(product.categorySlug, product.subcategorySlug);
+    
     const res = await authedFetch("/products", {
       method: "POST",
       body: JSON.stringify({
@@ -181,7 +156,7 @@ export class ApiProductRepository implements ProductRepository {
 
     if (patch.name !== undefined) body.name = patch.name;
     if (patch.description !== undefined) body.description = patch.description;
-    if (patch.categorySlug !== undefined) body.category_id = await this.resolveCategoryId(patch.categorySlug);
+    if (patch.categorySlug !== undefined) body.category_id = await this.resolveCategoryId(patch.categorySlug, patch.subcategorySlug);
     if (patch.priceCents !== undefined) body.price_cents = patch.priceCents;
     if (patch.compareAtPriceCents !== undefined) body.compare_at_price_cents = patch.compareAtPriceCents;
     if (patch.stock !== undefined) body.stock = patch.stock;

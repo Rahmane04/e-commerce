@@ -1,15 +1,19 @@
-import { getAuthToken } from "@/infrastructure/auth/auth-token";
+import { getAuthToken, clearAuthToken } from "@/infrastructure/auth/auth-token";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 /** Requête authentifiée : attache le Bearer token pour les routes admin protégées. */
 export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const token = getAuthToken();
+  // Pour un fichier (FormData), le navigateur doit fixer lui-même le Content-Type
+  // (avec la frontière multipart) : on ne le force donc pas.
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
+
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init.headers,
     },
@@ -17,6 +21,10 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
   });
 
   if (!res.ok) {
+    if (res.status === 401 && typeof window !== "undefined") {
+      clearAuthToken();
+      window.location.href = "/admin/login";
+    }
     const body = await res.json().catch(() => null);
     throw new Error(body?.message ?? `Erreur API (${res.status}) sur ${path}`);
   }
