@@ -9,6 +9,7 @@ import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { Customer } from "@/domain/customer/customer";
 import { placeOrder, formatOrderForWhatsApp, Order } from "@/domain/order/order";
 import { orderRepository } from "@/infrastructure/repositories/api-order-repository";
+import { buildShopWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, CheckCircle2, MessageCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -59,8 +60,7 @@ export default function CheckoutPage() {
   const handleWhatsAppConfirm = () => {
     if (!order) return;
     const message = formatOrderForWhatsApp(order);
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
+    window.open(buildShopWhatsAppUrl(message), "_blank");
   };
 
   return (

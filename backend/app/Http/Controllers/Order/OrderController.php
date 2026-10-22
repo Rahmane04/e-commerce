@@ -30,11 +30,12 @@ class OrderController extends Controller
                 'variantId' => $i->variantId,
                 'productName' => $i->productName,
                 'variantLabel' => $i->variantLabel,
+                'variantValue' => $i->variantValue,
                 'quantity' => $i->quantity,
                 'unitPriceCents' => $i->unitPrice->toCents(),
-                ], $order->items),
-                ];
-        }
+            ], $order->items),
+        ];
+    }
 
     public function index(OrderRepositoryInterface $orders)
     {

@@ -9,6 +9,7 @@ export interface ApiOrderItem {
   unitPriceCents: number;
   variantId?: string | number | null;
   variantLabel?: string | null;
+  variantValue?: string | null;
 }
 
 export interface ApiOrder {
@@ -22,6 +23,14 @@ export interface ApiOrder {
   totalCents: number;
   createdAt?: string | null;
   items: ApiOrderItem[];
+}
+
+/** Compose un libellé lisible à partir de l'API : « Taille M », « M » ou rien. */
+function composeVariantLabel(item: ApiOrderItem): string | undefined {
+  const parts = [item.variantLabel, item.variantValue].filter(
+    (p): p is string => typeof p === "string" && p.trim() !== "",
+  );
+  return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
 export function toDomainOrder(api: ApiOrder): Order {
@@ -44,7 +53,7 @@ export function toDomainOrder(api: ApiOrder): Order {
       productId: String(i.productId ?? ""),
       productName: i.productName,
       variantId: i.variantId ? String(i.variantId) : undefined,
-      variantLabel: i.variantLabel ?? undefined,
+      variantLabel: composeVariantLabel(i),
       quantity: i.quantity,
       priceCents: i.unitPriceCents,
     })),
