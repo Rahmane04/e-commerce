@@ -19,11 +19,8 @@ export function ProductClient({ product, inStock }: ProductClientProps) {
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const isUpdating = useCartStore((state) => state.isUpdating);
-
-  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(
-    product.variants && product.variants.length > 0 && product.variants[0].stock && product.variants[0].stock > 0
-      ? product.variants[0].id
-      : undefined
+    const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(
+    product.variants?.find((v) => (v.stock ?? 0) > 0)?.id
   );
   const [quantity, setQuantity] = useState(1);
 

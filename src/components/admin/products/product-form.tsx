@@ -101,6 +101,17 @@ export function ProductForm({
   const selectedCategory = watch("categorySlug");
   const selectedCat = categories.find((c) => c.slug === selectedCategory);
   const watchedImages = watch("images");
+    const watchedVariants = watch("variants");
+  const hasVariants = variantFields.length > 0;
+  const variantsStockSum = (watchedVariants ?? []).reduce(
+    (sum, v) => sum + (Number(v?.stock) || 0),
+    0,
+  );
+
+  // Avec des variantes, le stock du produit est la somme de leurs stocks (règle du backend).
+  useEffect(() => {
+    if (hasVariants) setValue("stock", variantsStockSum);
+  }, [hasVariants, variantsStockSum, setValue]);
 
   const handleFileChange = async (index: number, file: File | undefined) => {
     if (!file) return;
@@ -461,25 +472,36 @@ export function ProductForm({
           </section>
 
           {/* Stock */}
-          <section className="rounded-lg border border-slate-200 bg-white p-5">
+                    <section className="rounded-lg border border-slate-200 bg-white p-5">
             <h2 className="mb-4 text-sm font-semibold text-slate-700">Stock global</h2>
             <div>
               <label htmlFor="pf-stock" className={labelClass}>
-                Quantité <span className="text-red-500">*</span>
+                Quantité {!hasVariants && <span className="text-red-500">*</span>}
               </label>
               <input
                 id="pf-stock"
                 type="number"
                 min={0}
+                readOnly={hasVariants}
                 {...register("stock", {
                   required: "Le stock est obligatoire",
                   min: { value: 0, message: "Le stock ne peut pas être négatif" },
                   valueAsNumber: true,
                 })}
-                className={cn(inputClass, "mt-1", errors.stock && "border-red-300")}
+                className={cn(
+                  inputClass,
+                  "mt-1",
+                  errors.stock && "border-red-300",
+                  hasVariants && "cursor-not-allowed bg-slate-50 text-slate-500",
+                )}
                 placeholder="0"
                 aria-invalid={!!errors.stock}
               />
+              {hasVariants && (
+                <p className="mt-1 text-xs text-slate-500">
+                  Calculé automatiquement : somme du stock des variantes.
+                </p>
+              )}
               <FieldError message={errors.stock?.message} />
             </div>
           </section>
