@@ -103,16 +103,20 @@ export function formatOrderForWhatsApp(order: Order): string {
   if (order.customer.email) {
     msg += `*Email :* ${order.customer.email}${nl}`;
   }
-  msg += `*Adresse :* ${order.customer.address}, ${order.customer.city}${nl}`;
+  // La ville peut être vide (elle est fusionnée dans l'adresse côté API).
+  const fullAddress = [order.customer.address, order.customer.city]
+    .filter((part) => part && part.trim() !== "")
+    .join(", ");
+  msg += `*Adresse :* ${fullAddress}${nl}`;
   if (order.customer.landmark) {
     msg += `*Repère :* ${order.customer.landmark}${nl}`;
   }
   if (order.customer.notes) {
     msg += `*Notes :* ${order.customer.notes}${nl}`;
   }
-  
+
   msg += `${doubleNl}*PRODUITS :*${nl}`;
-  
+
   order.items.forEach((item) => {
     const variantStr = item.variantLabel ? ` (${item.variantLabel})` : "";
     const priceStr = Money.fromCents(item.priceCents).format();
