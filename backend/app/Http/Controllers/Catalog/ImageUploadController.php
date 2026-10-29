@@ -1,15 +1,16 @@
 <?php
 namespace App\Http\Controllers\Catalog;
 
+use App\Application\Catalog\Ports\ImageStorageInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\UploadImageRequest;
 
 class ImageUploadController extends Controller
 {
-    public function store(UploadImageRequest $request)
+    public function store(UploadImageRequest $request, ImageStorageInterface $storage)
     {
-        $path = $request->file('image')->store('products', 'public');
+        $url = $storage->store($request->file('image'));
 
-        return response()->json(['url' => asset('storage/' . $path)], 201);
+        return response()->json(['url' => $url], 201);
     }
 }

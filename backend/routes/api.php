@@ -21,6 +21,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    Route::get('/admin/products', [ProductController::class, 'adminIndex']);
     Route::post('/products', [ProductController::class, 'store']);
     Route::patch('/products/{id}', [ProductController::class, 'update']);
     Route::post('/products/{id}/publish', [ProductController::class, 'publish']);

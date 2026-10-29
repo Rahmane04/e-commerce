@@ -130,7 +130,8 @@ export function ProductStatusBadge({
 }
 
 /** Détermine le statut produit à afficher depuis les données métier */
-export function getProductStatus(stock: number): ProductStatus {
+export function getProductStatus(isPublished: boolean | undefined, stock: number): ProductStatus {
+  if (isPublished === false) return "brouillon";
   if (stock === 0) return "rupture";
   return "publie";
 }

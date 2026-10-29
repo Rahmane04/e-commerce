@@ -19,6 +19,9 @@ export interface ProductRepository {
   search(query: string): Promise<Product[]>;
   findFeatured(): Promise<Product[]>;
   findCategories(): Promise<Category[]>;
+  findAllForAdmin(): Promise<Product[]>;
+  publish(id: string): Promise<void>;
+  unpublish(id: string): Promise<void>;
 
   // ── Écriture (admin uniquement) ─────────────────────────────────────────
   create(product: Omit<Product, "id" | "createdAt">): Promise<Product>;

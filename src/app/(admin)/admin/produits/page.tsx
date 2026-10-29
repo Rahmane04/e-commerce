@@ -31,7 +31,7 @@ export default function ProduitsPage() {
 
   const loadData = useCallback(async () => {
     const [prods, cats] = await Promise.all([
-      productRepository.findAll(),
+      productRepository.findAllForAdmin(),
       productRepository.findCategories(),
     ]);
     setProducts(prods);
@@ -49,7 +49,7 @@ export default function ProduitsPage() {
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.categorySlug.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCategory === "all" || p.categorySlug === filterCategory;
-    const status = getProductStatus(p.stock);
+    const status = getProductStatus(p.isPublished, p.stock);
     const matchStatus = filterStatus === "all" || status === filterStatus;
     return matchSearch && matchCat && matchStatus;
   });
@@ -122,13 +122,19 @@ export default function ProduitsPage() {
     {
       key: "status",
       header: "Statut",
-      render: (p) => <ProductStatusBadge status={getProductStatus(p.stock)} />,
+      render: (p) => <ProductStatusBadge status={getProductStatus(p.isPublished, p.stock)} />,
     },
     {
       key: "actions",
       header: "",
       render: (p) => (
         <div className="flex items-center justify-end gap-2">
+          <button
+          onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}
+          className="rounded px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
+          >
+            {p.isPublished === false ? "Publier" : "Dépublier"}
+          </button>
           <Link
             href={`/admin/produits/${p.id}/modifier`}
             className="rounded px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
@@ -145,6 +151,20 @@ export default function ProduitsPage() {
       ),
     },
   ];
+    const handleTogglePublish = async (p: Product) => {
+    try {
+      if (p.isPublished === false) {
+        await productRepository.publish(p.id);
+        toast.success(`"${p.name}" publié`);
+      } else {
+        await productRepository.unpublish(p.id);
+        toast.success(`"${p.name}" dépublié`);
+      }
+      loadData();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Action impossible.");
+    }
+  };
   const handleDelete = async () => {
   if (!deleteTarget) return;
   try {
@@ -208,6 +228,7 @@ export default function ProduitsPage() {
           >
             <option value="all">Tous statuts</option>
             <option value="publie">Publiés</option>
+            <option value="brouillon">Brouillons</option>
             <option value="rupture">Rupture</option>
           </select>
         </div>

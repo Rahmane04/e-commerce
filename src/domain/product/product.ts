@@ -36,6 +36,7 @@ export interface Product {
   stock: number;
   featured?: boolean;
   isNew?: boolean;
+  isPublished?: boolean;
   createdAt: string; // ISO date
 }
 
