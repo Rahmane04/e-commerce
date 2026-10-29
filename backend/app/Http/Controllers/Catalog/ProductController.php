@@ -76,10 +76,18 @@ class ProductController extends Controller
             'createdAt' => $p->createdAt,
         ];
     }
-
     public function index(Request $request, ListProductsUseCase $useCase)
     {
-        $products = $useCase->execute();
+        return $this->listProducts($request, $useCase->execute(false));
+    }
+
+    public function adminIndex(Request $request, ListProductsUseCase $useCase)
+    {
+        return $this->listProducts($request, $useCase->execute(true));
+    }
+
+        private function listProducts(Request $request, array $products)
+    {
         $hierarchy = $this->categoryHierarchyMap();
 
         if ($request->filled('category')) {
@@ -106,10 +114,11 @@ class ProductController extends Controller
         return response()->json(array_map(fn ($p) => $this->toJson($p, $hierarchy), $products));
     }
 
+
     public function show(string $slug, ProductRepositoryInterface $repository)
     {
         $product = $repository->findBySlug($slug);
-        if ($product === null) {
+        if ($product === null || !$product->isPublished) {
             throw new ProductNotFoundException();
         }
         return response()->json($this->toJson($product, $this->categoryHierarchyMap()));

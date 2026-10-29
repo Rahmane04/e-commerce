@@ -52,6 +52,7 @@ function toDomainProduct(api: ApiProduct): Product {
     stock: api.stock,
     featured: api.featured,
     isNew: api.isNew,
+    isPublished: api.isPublished,
     createdAt: api.createdAt,
   };
 }
@@ -112,6 +113,19 @@ export class ApiProductRepository implements ProductRepository {
   async findCategories(): Promise<Category[]> {
     const data = await fetchJson<ApiCategory[]>("/categories");
     return data.map(toDomainCategory);
+  }
+    /** Admin : tous les produits, brouillons compris (route protégée). */
+  async findAllForAdmin(): Promise<Product[]> {
+    const data = await fetchJson<ApiProduct[]>("/admin/products");
+    return data.map(toDomainProduct);
+  }
+
+  async publish(id: string): Promise<void> {
+    await authedFetch(`/products/${id}/publish`, { method: "POST" });
+  }
+
+  async unpublish(id: string): Promise<void> {
+    await authedFetch(`/products/${id}/unpublish`, { method: "POST" });
   }
 
   /** Résout un slug de catégorie vers son id numérique côté Laravel. */
