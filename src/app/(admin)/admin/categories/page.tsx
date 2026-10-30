@@ -17,6 +17,10 @@ export default function CategoriesPage() {
   const [newCatName, setNewCatName] = useState("");
   const [newCatSlug, setNewCatSlug] = useState("");
   const [newCatDesc, setNewCatDesc] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [parentForNew, setParentForNew] = useState<Category | null>(null);
+  const [deleteSubTarget, setDeleteSubTarget] = useState<{ slug: string; name: string } | null>(null);
 
   const load = async () => {
     const cats = await productRepository.findCategories();
@@ -26,23 +30,73 @@ export default function CategoriesPage() {
 
   useEffect(() => { load(); }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
+    const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
     const slug = newCatSlug.trim() || newCatName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-    await productRepository.createCategory({ slug, name: newCatName.trim(), description: newCatDesc.trim() });
-    toast.success("Catégorie créée !");
-    setNewCatName(""); setNewCatSlug(""); setNewCatDesc("");
-    setShowForm(false);
-    load();
+    try {
+      await productRepository.createCategory({
+        slug,
+        name: newCatName.trim(),
+        description: newCatDesc.trim(),
+        parentId: parentForNew?.id,
+      });
+      toast.success(parentForNew ? "Sous-catégorie créée !" : "Catégorie créée !");
+      setNewCatName(""); setNewCatSlug(""); setNewCatDesc("");
+      setParentForNew(null);
+      setShowForm(false);
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Création impossible.");
+    }
   };
-
+    
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await productRepository.deleteCategory(deleteTarget.slug);
-    toast.success(`Catégorie "${deleteTarget.name}" supprimée`);
-    setDeleteTarget(null);
-    load();
+    try {
+      await productRepository.deleteCategory(deleteTarget.slug);
+      toast.success(`Catégorie "${deleteTarget.name}" supprimée`);
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Suppression impossible.");
+    } finally {
+      setDeleteTarget(null);
+    }
+  };
+
+    const openEdit = (cat: Category) => {
+    setEditTarget(cat);
+    setEditName(cat.name);
+    setEditDesc(cat.description ?? "");
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget || !editName.trim()) return;
+    try {
+      await productRepository.updateCategory(editTarget.slug, {
+        name: editName.trim(),
+        description: editDesc.trim(),
+      });
+      toast.success("Catégorie modifiée");
+      setEditTarget(null);
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Modification impossible.");
+    }
+  };
+
+  const handleDeleteSub = async () => {
+    if (!deleteSubTarget) return;
+    try {
+      await productRepository.deleteCategory(deleteSubTarget.slug);
+      toast.success(`Sous-catégorie "${deleteSubTarget.name}" supprimée`);
+      load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Suppression impossible.");
+    } finally {
+      setDeleteSubTarget(null);
+    }
   };
 
   const moveCategory = async (index: number, direction: "up" | "down") => {
@@ -66,7 +120,7 @@ export default function CategoriesPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+        onClick={() => { setParentForNew(null); setShowForm(true); }}
           className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700"
         >
           <Plus className="h-4 w-4" />
@@ -77,7 +131,9 @@ export default function CategoriesPage() {
       {/* Formulaire création */}
       {showForm && (
         <div className="rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="mb-4 text-sm font-semibold text-slate-700">Nouvelle catégorie</h2>
+          <h2 className="mb-4 text-sm font-semibold text-slate-700">
+            {parentForNew ? `Nouvelle sous-catégorie de « ${parentForNew.name} »` : "Nouvelle catégorie"}
+          </h2>
           <form onSubmit={handleCreate} className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600">Nom *</label>
@@ -115,6 +171,42 @@ export default function CategoriesPage() {
                 Créer
               </button>
               <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+          {editTarget && (
+        <div className="rounded-lg border border-slate-200 bg-white p-5">
+          <h2 className="mb-4 text-sm font-semibold text-slate-700">
+            Modifier « {editTarget.name} »
+          </h2>
+          <form onSubmit={handleUpdate} className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Nom *</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                required
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Description</label>
+              <input
+                type="text"
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div className="flex gap-2 sm:col-span-2">
+              <button type="submit" className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
+                Enregistrer
+              </button>
+              <button type="button" onClick={() => setEditTarget(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
                 Annuler
               </button>
             </div>
@@ -163,18 +255,31 @@ export default function CategoriesPage() {
                   <p className="mt-0.5 text-xs text-slate-500">{cat.description}</p>
                 )}
                 {/* Sous-catégories */}
-                {cat.subcategories && cat.subcategories.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {cat.subcategories.map((sub) => (
-                      <span
-                        key={sub.slug}
-                        className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600"
+                                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {cat.subcategories?.map((sub) => (
+                    <span
+                      key={sub.slug}
+                      className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600"
+                    >
+                      {sub.name}
+                      <button
+                        type="button"
+                        onClick={() => setDeleteSubTarget({ slug: sub.slug, name: sub.name })}
+                        className="rounded-full text-slate-400 hover:text-red-600"
+                        aria-label={`Supprimer la sous-catégorie ${sub.name}`}
                       >
-                        {sub.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => { setParentForNew(cat); setShowForm(true); }}
+                    className="rounded-full border border-dashed border-slate-300 px-2.5 py-0.5 text-xs text-slate-500 hover:bg-slate-50"
+                  >
+                    + sous-catégorie
+                  </button>
+                </div>
               </div>
 
               {/* Actions */}
@@ -203,9 +308,18 @@ export default function CategoriesPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title={`Supprimer "${deleteTarget?.name}" ?`}
-        description="Cette action supprime la catégorie. Les produits associés ne seront pas supprimés mais n'auront plus de catégorie parente."
+        description="La suppression est refusée tant que la catégorie contient des produits ou des sous-catégories."
         confirmLabel="Supprimer"
         onConfirm={handleDelete}
+        isDestructive
+      />
+      <ConfirmDialog
+        open={!!deleteSubTarget}
+        onOpenChange={(open) => !open && setDeleteSubTarget(null)}
+        title={`Supprimer la sous-catégorie "${deleteSubTarget?.name}" ?`}
+        description="La suppression est refusée tant que la sous-catégorie contient des produits."
+        confirmLabel="Supprimer"
+        onConfirm={handleDeleteSub}
         isDestructive
       />
     </div>

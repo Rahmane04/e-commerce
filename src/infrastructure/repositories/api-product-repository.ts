@@ -59,10 +59,12 @@ function toDomainProduct(api: ApiProduct): Product {
 
 function toDomainCategory(api: ApiCategory): Category {
   return {
+    id: api.id,
     slug: api.slug,
     name: api.name,
     description: api.description ?? undefined,
     subcategories: api.subcategories.map((sub) => ({
+      id: sub.id,
       slug: sub.slug,
       name: sub.name,
     })),
@@ -196,13 +198,17 @@ export class ApiProductRepository implements ProductRepository {
 
   // ── Écriture catégorie (admin) ────────────────────────────────────────
 
-  async createCategory(category: Category): Promise<Category> {
+    async createCategory(category: Category): Promise<Category> {
     const res = await authedFetch("/categories", {
       method: "POST",
-      body: JSON.stringify({ name: category.name, description: category.description ?? null }),
+      body: JSON.stringify({
+        name: category.name,
+        description: category.description ?? null,
+        ...(category.parentId !== undefined ? { parent_id: category.parentId } : {}),
+      }),
     });
     const created = await res.json();
-    return { slug: created.slug, name: created.name, description: category.description };
+    return { id: created.id, slug: created.slug, name: created.name, description: category.description };
   }
 
   async updateCategory(slug: string, patch: Partial<Category>): Promise<Category> {
