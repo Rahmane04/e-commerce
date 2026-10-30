@@ -8,15 +8,6 @@ import { CartIndicator } from "@/components/layout/cart-indicator";
 import { Category } from "@/domain/product/category";
 import { productRepository } from "@/infrastructure/repositories/api-product-repository";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -51,38 +42,73 @@ export function SiteHeader({ categories: initialCategories }: SiteHeaderProps = 
   }, [initialCategories]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="flex h-14 items-center justify-between px-4">
+
+        {/* Gauche : bouton hamburger */}
+        <div className="flex items-center">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Ouvrir le menu">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-11 w-11 rounded-xl"
+                aria-label="Ouvrir le menu"
+              >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-              <SheetHeader className="border-b border-border/50 pb-6 pt-2">
-                <SheetTitle className="text-left">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={LOGO_URL} alt="Lingère Bi By Dié Dié" className="h-10 w-auto rounded object-contain shadow-sm" />
+
+            <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0 flex flex-col">
+              {/* En-tête du drawer avec logo */}
+              <SheetHeader className="border-b border-border/50 px-5 py-4">
+                <SheetTitle asChild>
+                  <Link href="/" onClick={() => setIsOpen(false)} aria-label="Accueil">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={LOGO_URL}
+                      alt="Lingère Bi By Dié Dié"
+                      className="h-11 w-auto rounded object-contain"
+                    />
+                  </Link>
                 </SheetTitle>
               </SheetHeader>
-              <nav aria-label="Menu principal mobile" className="flex flex-col gap-1 px-2 py-4 h-full overflow-y-auto hide-scrollbar">
+
+              {/* Navigation du drawer */}
+              <nav
+                aria-label="Menu principal"
+                className="flex-1 overflow-y-auto px-3 py-4"
+              >
+                {/* Lien "Toute la boutique" */}
+                <Link
+                  href="/"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center py-3.5 px-3 text-base font-medium rounded-xl transition-colors hover:bg-accent/60 active:bg-accent"
+                >
+                  Accueil
+                </Link>
+
+                <div className="my-2 border-t border-border/50" />
+
                 <Accordion type="single" collapsible className="w-full">
-                  {categories.map((category) => (
+                  {categories.map((category) =>
                     category.subcategories && category.subcategories.length > 0 ? (
-                      <AccordionItem value={category.slug} key={category.slug} className="border-b-0">
-                        <AccordionTrigger className="text-lg font-medium px-4 hover:bg-accent/50 rounded-xl transition-colors data-[state=open]:text-primary data-[state=open]:bg-accent/20">
+                      <AccordionItem
+                        value={category.slug}
+                        key={category.slug}
+                        className="border-b-0"
+                      >
+                        <AccordionTrigger className="py-3.5 px-3 text-base font-medium rounded-xl hover:bg-accent/60 hover:no-underline data-[state=open]:text-primary data-[state=open]:bg-accent/30 transition-colors">
                           {category.name}
                         </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="flex flex-col space-y-1 pb-4 pt-2 px-2">
+                        <AccordionContent className="pb-1">
+                          <div className="flex flex-col gap-0.5 pl-3 pr-1">
                             {category.subcategories.map((sub) => (
                               <Link
                                 key={sub.slug}
                                 href={`/categorie/${category.slug}/${sub.slug}`}
                                 onClick={() => setIsOpen(false)}
-                                className="block py-3 px-4 text-muted-foreground transition-colors hover:text-primary hover:bg-accent/50 rounded-lg text-base"
+                                className="block py-3 px-3 text-sm text-muted-foreground rounded-xl transition-colors hover:text-foreground hover:bg-accent/50 active:bg-accent"
                               >
                                 {sub.name}
                               </Link>
@@ -90,7 +116,7 @@ export function SiteHeader({ categories: initialCategories }: SiteHeaderProps = 
                             <Link
                               href={`/categorie/${category.slug}`}
                               onClick={() => setIsOpen(false)}
-                              className="block py-3 px-4 text-primary font-medium mt-3 bg-primary/5 hover:bg-primary/10 transition-colors rounded-lg text-center text-base"
+                              className="mt-1 block py-3 px-3 text-sm font-semibold text-primary rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors text-center"
                             >
                               Voir tout {category.name}
                             </Link>
@@ -98,89 +124,38 @@ export function SiteHeader({ categories: initialCategories }: SiteHeaderProps = 
                         </AccordionContent>
                       </AccordionItem>
                     ) : (
-                      <div key={category.slug} className="py-1">
+                      <div key={category.slug}>
                         <Link
                           href={`/categorie/${category.slug}`}
                           onClick={() => setIsOpen(false)}
-                          className="block py-4 px-4 text-lg font-medium transition-colors hover:text-primary hover:bg-accent/50 rounded-xl"
+                          className="flex items-center py-3.5 px-3 text-base font-medium rounded-xl transition-colors hover:bg-accent/60 active:bg-accent"
                         >
                           {category.name}
                         </Link>
                       </div>
                     )
-                  ))}
+                  )}
                 </Accordion>
               </nav>
             </SheetContent>
           </Sheet>
-
-          <Link
-            href="/"
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
-            aria-label="Accueil — Lingère Bi By Dié Dié"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={LOGO_URL}
-              alt="Lingère Bi By Dié Dié"
-              className="h-10 w-auto rounded-md object-contain"
-            />
-          </Link>
         </div>
 
-        <nav aria-label="Menu principal" className="hidden md:flex items-center">
-          <NavigationMenu>
-            <NavigationMenuList>
-              {categories.map((category) => (
-                <NavigationMenuItem key={category.slug}>
-                  {category.subcategories && category.subcategories.length > 0 ? (
-                    <>
-                      <NavigationMenuTrigger className="bg-transparent text-foreground/80 hover:text-foreground hover:bg-accent/50 focus:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring">
-                        {category.name}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
-                          {category.subcategories.map((sub) => (
-                            <li key={sub.slug}>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href={`/categorie/${category.slug}/${sub.slug}`}
-                                  className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                                >
-                                  <div className="text-sm font-medium leading-none">{sub.name}</div>
-                                  <p className="line-clamp-2 text-sm leading-snug text-muted-foreground mt-1">
-                                    Découvrir la sélection {sub.name.toLowerCase()}
-                                  </p>
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          ))}
-                          <li className="col-span-full mt-2 border-t border-border pt-2">
-                             <NavigationMenuLink asChild>
-                                <Link
-                                  href={`/categorie/${category.slug}`}
-                                  className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring text-center font-medium text-sm"
-                                >
-                                  Voir tout {category.name}
-                                </Link>
-                             </NavigationMenuLink>
-                          </li>
-                        </ul>
-                      </NavigationMenuContent>
-                    </>
-                  ) : (
-                    <NavigationMenuLink asChild>
-                      <Link href={`/categorie/${category.slug}`} className={`${navigationMenuTriggerStyle()} bg-transparent text-foreground/80 hover:text-foreground hover:bg-accent/50 focus:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring`}>
-                        {category.name}
-                      </Link>
-                    </NavigationMenuLink>
-                  )}
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </nav>
+        {/* Centre : logo */}
+        <Link
+          href="/"
+          className="absolute left-1/2 -translate-x-1/2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          aria-label="Accueil — Lingère Bi By Dié Dié"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={LOGO_URL}
+            alt="Lingère Bi By Dié Dié"
+            className="h-9 w-auto rounded-md object-contain"
+          />
+        </Link>
 
+        {/* Droite : panier */}
         <CartIndicator />
       </div>
     </header>
