@@ -3,6 +3,8 @@ namespace App\Infrastructure\Catalog\Persistence;
 
 use App\Application\Catalog\Ports\CategoryRepositoryInterface;
 use App\Domain\Catalog\Category;
+use App\Domain\Catalog\Exceptions\CategoryNotEmptyException;
+use Illuminate\Database\QueryException;
 
 class EloquentCategoryRepository implements CategoryRepositoryInterface
 {
@@ -29,9 +31,17 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
         $model->update($data);
         return CategoryMapper::toDomain($model);
     }
-
-    public function delete(int $id): void
+        public function delete(int $id): void
     {
-        CategoryModel::findOrFail($id)->delete();
+        try {
+            CategoryModel::findOrFail($id)->delete();
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23503') {
+                throw new CategoryNotEmptyException(
+                    "Impossible de supprimer cette catégorie : elle contient des produits. Déplacez-les ou supprimez-les d'abord."
+                );
+            }
+            throw $e;
+        }
     }
 }

@@ -3,8 +3,10 @@ namespace App\Http\Controllers\Catalog;
 
 use App\Application\Catalog\Ports\CategoryRepositoryInterface;
 use App\Application\Catalog\UseCases\CreateCategory\{CreateCategoryCommand, CreateCategoryUseCase};
+use App\Application\Catalog\UseCases\DeleteCategory\DeleteCategoryUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Catalog\CreateCategoryRequest;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -46,31 +48,32 @@ class CategoryController extends Controller
             'name' => $category->name,
         ], 201);
     }
+
     public function update(string $slug, Request $request, CategoryRepositoryInterface $repository)
-    {
-    $category = $repository->findBySlug($slug);
-    if ($category === null) {
-        return response()->json(['message' => 'Catégorie introuvable.'], 404);
-    }
-
-    $validated = $request->validate([
-        'name' => ['sometimes', 'string', 'max:255'],
-        'description' => ['sometimes', 'nullable', 'string'],
-        'display_order' => ['sometimes', 'integer', 'min:0'],
-    ]);
-
-    $updated = $repository->update($category->id, $validated);
-    return response()->json(['slug' => $updated->slug, 'name' => $updated->name]);
-    }
-
-    public function destroy(string $slug, CategoryRepositoryInterface $repository)
     {
         $category = $repository->findBySlug($slug);
         if ($category === null) {
             return response()->json(['message' => 'Catégorie introuvable.'], 404);
         }
 
-        $repository->delete($category->id);
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string'],
+            'display_order' => ['sometimes', 'integer', 'min:0'],
+        ]);
+
+        $updated = $repository->update($category->id, $validated);
+        return response()->json(['slug' => $updated->slug, 'name' => $updated->name]);
+    }
+
+    public function destroy(string $slug, CategoryRepositoryInterface $repository, DeleteCategoryUseCase $useCase)
+    {
+        $category = $repository->findBySlug($slug);
+        if ($category === null) {
+            return response()->json(['message' => 'Catégorie introuvable.'], 404);
+        }
+
+        $useCase->execute($category->id);
         return response()->json(null, 204);
     }
 }
