@@ -2,6 +2,13 @@ import { getAuthToken, clearAuthToken } from "@/infrastructure/auth/auth-token";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
+export class ApiError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 /** Requête authentifiée : attache le Bearer token pour les routes admin protégées. */
 export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const token = getAuthToken();
@@ -46,7 +53,7 @@ export async function publicFetch(path: string, init: RequestInit = {}): Promise
 
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Erreur API (${res.status}) sur ${path}`);
+    throw new ApiError(body?.message ?? `Erreur API (${res.status}) sur ${path}`, res.status);
   }
 
   return res;
