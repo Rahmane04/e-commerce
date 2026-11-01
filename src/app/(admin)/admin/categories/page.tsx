@@ -28,7 +28,6 @@ export default function CategoriesPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
 
     const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

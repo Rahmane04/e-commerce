@@ -48,50 +48,50 @@ export default async function ProductPage({ params }: PageProps) {
   const discount = productDiscountPercentage(product);
 
   return (
-    <div className="min-h-screen bg-[#fcfbf8] text-[#1a1a2e]">
-      <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
+    <div className="min-h-screen bg-white text-black">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <div className="mb-8 flex flex-wrap items-center gap-2 text-sm text-[#5a5a6e]">
-          <Link href="/" className="transition-colors hover:text-[#c5a059]">
+        <div className="mb-8 flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+          <Link href="/" className="transition-colors hover:text-black">
             Accueil
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3 w-3" />
           {category && (
             <>
               <Link
                 href={`/categorie/${category.slug}`}
-                className="transition-colors hover:text-[#c5a059]"
+                className="transition-colors hover:text-black"
               >
                 {category.name}
               </Link>
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3 w-3" />
             </>
           )}
-          <span className="text-[#1a1a2e]">{product.name}</span>
+          <span className="font-medium text-black">{product.name}</span>
         </div>
 
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
           {/* Gallery */}
-          <div className="md:sticky md:top-24 md:self-start">
+          <div className="md:sticky md:top-28 md:self-start">
             <ProductGallery images={product.images} />
           </div>
 
           {/* Details */}
           <div className="flex flex-col">
-            <div className="mb-6 border-b border-[#e8e4d9] pb-6">
-              <h1 className="font-serif text-3xl font-semibold leading-tight md:text-4xl">
+            <div className="mb-6 border-b border-neutral-100 pb-6">
+              <h1 className="font-serif text-3xl font-bold leading-tight md:text-4xl text-black">
                 {product.name}
               </h1>
 
               <div className="mt-4 flex items-center gap-3">
-                <span className="text-2xl font-bold text-[#1a1a2e]">{price}</span>
+                <span className="text-2xl font-bold text-black">{price}</span>
                 {oldPrice && (
-                  <span className="text-lg text-[#5a5a6e] line-through">
+                  <span className="text-base text-neutral-400 line-through">
                     {oldPrice}
                   </span>
                 )}
                 {discount && (
-                  <span className="rounded bg-[#c5a059]/10 px-2 py-1 text-sm font-semibold text-[#c5a059]">
+                  <span className="rounded bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600">
                     -{discount}%
                   </span>
                 )}
@@ -99,19 +99,19 @@ export default async function ProductPage({ params }: PageProps) {
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {product.isNew && (
-                  <span className="rounded-full bg-[#1a1a2e] px-3 py-1 text-xs font-bold text-[#f5f0e6]">
+                  <span className="rounded bg-black px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                     Nouveau
                   </span>
                 )}
                 {product.featured && (
-                  <span className="rounded-full bg-[#c5a059] px-3 py-1 text-xs font-bold text-[#1a1a2e]">
+                  <span className="rounded bg-neutral-800 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                     Best-seller
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="prose prose-sm prose-[#1a1a2e] mb-8 max-w-none text-[#5a5a6e]">
+            <div className="prose prose-sm mb-8 max-w-none text-neutral-600">
               <p>{product.description}</p>
             </div>
 
@@ -119,15 +119,15 @@ export default async function ProductPage({ params }: PageProps) {
             <ProductClient product={product} inStock={inStock} />
 
             {/* Reassurance */}
-            <div className="mt-10 rounded-xl border border-[#e8e4d9] bg-white p-6">
-              <ul className="space-y-4 text-sm text-[#5a5a6e]">
-                <li className="flex gap-3">
-                  <span className="text-[#c5a059]">✦</span>
+            <div className="mt-10 rounded-xl border border-neutral-100 bg-neutral-50/50 p-6">
+              <ul className="space-y-3 text-xs text-neutral-600">
+                <li className="flex gap-2.5 items-center">
+                  <span className="text-[#c5a059] font-bold">✓</span>
                   <span>Livraison estimée sous 24h à 48h (selon zone).</span>
                 </li>
-                <li className="flex gap-3">
-                  <span className="text-[#c5a059]">✦</span>
-                  <span>Paiement à la livraison possible.</span>
+                <li className="flex gap-2.5 items-center">
+                  <span className="text-[#c5a059] font-bold">✓</span>
+                  <span>Paiement sécurisé ou à la livraison.</span>
                 </li>
               </ul>
             </div>
