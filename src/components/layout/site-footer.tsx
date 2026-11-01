@@ -3,9 +3,9 @@ import { MessageCircle } from "lucide-react";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[#e8e4d9] bg-[#fcfbf8]">
-      <div className="flex items-center justify-between px-5 py-4">
-        <p className="text-xs text-[#4a4a5e]">
+    <footer className="border-t border-neutral-100 bg-white">
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-5">
+        <p className="text-xs text-neutral-500 font-medium">
           © {new Date().getFullYear()} Lingère Bi By Dié Dié
         </p>
         <a
