@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { setAuthToken, getAuthToken } from "@/infrastructure/auth/auth-token";
-import { publicFetch } from "@/infrastructure/http/authed-fetch";
+import { publicFetch, ApiError } from "@/infrastructure/http/authed-fetch";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,8 +33,14 @@ useEffect(() => {
       setAuthToken(data.token);
       toast.success("Connexion réussie");
       router.push("/admin");
-    } catch {
-      setError("Email ou mot de passe incorrect.");
+     } catch (err) {
+      if (err instanceof ApiError && err.status === 429) {
+        setError("Trop de tentatives. Réessayez dans une minute.");
+      } else if (err instanceof ApiError && err.status === 401) {
+        setError("Email ou mot de passe incorrect.");
+      } else {
+        setError("Connexion impossible pour le moment. Vérifiez votre connexion et réessayez.");
+      }
     } finally {
       setLoading(false);
     }
