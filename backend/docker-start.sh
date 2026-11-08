@@ -10,4 +10,7 @@ php artisan config:cache
 php artisan route:cache
 php artisan migrate --force
 
+# Données minimales (idempotent). Un échec ne doit pas empêcher le site de démarrer.
+php artisan db:seed --class=ProductionSeeder --force || echo "ProductionSeeder: échec, démarrage poursuivi"
+
 exec apache2-foreground
