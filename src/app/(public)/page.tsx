@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { categoryVisuals } from "@/lib/category-visuals";
 import { productRepository } from "@/infrastructure/repositories/api-product-repository";
+import { pickCategoryCover } from "@/domain/product/product";
 
 /* ── Taglines par catégorie ── */
 const categoryTaglines: Record<string, string> = {
@@ -23,14 +24,23 @@ const categoryBadges: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const categories = await productRepository.findCategories().catch(() => []);
+  // En parallèle : les catégories et les produits publiés (pour les couvertures).
+  // Sur l'accueil, une API injoignable n'est pas bloquante : on retombe sur les visuels par défaut.
+  const [categories, products] = await Promise.all([
+    productRepository.findCategories().catch(() => []),
+    productRepository.findAll().catch(() => []),
+  ]);
 
   const displayCategories =
     categories.length > 0
       ? categories.map((cat) => ({
           name: cat.name,
           slug: cat.slug,
-          image: categoryVisuals[cat.slug]?.heroImage ?? categoryVisuals["vetements"].heroImage,
+          // Photo d'un vrai produit de l'univers si possible, sinon visuel par défaut.
+          image:
+            pickCategoryCover(products, cat.slug)?.url ??
+            categoryVisuals[cat.slug]?.heroImage ??
+            categoryVisuals["vetements"].heroImage,
           tagline: categoryTaglines[cat.slug] ?? "",
           badge: categoryBadges[cat.slug] ?? "",
         }))
