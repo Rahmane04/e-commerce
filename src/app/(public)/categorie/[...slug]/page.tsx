@@ -14,7 +14,9 @@ export default async function CategoryPage({ params }: PageProps) {
   // Catégorie virtuelle "nouveautés"
   const isNouveautes = slug === "nouveautes";
 
-  const allCategories = await productRepository.findCategories().catch(() => []);
+  // Pas de catch qui renvoie une liste vide : une API injoignable doit afficher
+  // la page d'erreur (error.tsx), pas un faux 404 « catégorie introuvable ».
+  const allCategories = await productRepository.findCategories();
   const category = isNouveautes
     ? { slug: "nouveautes", name: "Nouveautés", description: "Nos dernières arrivées.", subcategories: [] }
     : allCategories.find((c) => c.slug === slug);
@@ -24,8 +26,8 @@ export default async function CategoryPage({ params }: PageProps) {
   const visual = categoryVisuals[slug] ?? categoryVisuals["vetements"];
 
   const products = isNouveautes
-    ? (await productRepository.findAll().catch(() => [])).filter((p) => p.isNew)
-    : await productRepository.findByCategory(slug).catch(() => []);
+    ? (await productRepository.findAll()).filter((p) => p.isNew)
+    : await productRepository.findByCategory(slug);
 
   return (
     <CategoryView

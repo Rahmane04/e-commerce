@@ -7,10 +7,10 @@ class PlaceOrderRequest extends FormRequest
 {
     public function authorize(): bool { return true; }
 
-    /** Normalise le téléphone en +221XXXXXXXXX quand il est reconnu (espaces, 00221, 221 acceptés). */
+    /** Normalise le téléphone en +221XXXXXXXXX : on ne garde que les chiffres et le +, ce qui élimine aussi les espaces insécables des numéros collés. */
     protected function prepareForValidation(): void
     {
-        $raw = preg_replace('/[\s.\-()]/', '', (string) $this->input('customer_phone'));
+        $raw = preg_replace('/[^\d+]/', '', (string) $this->input('customer_phone'));
 
         if (preg_match('/^(?:\+221|00221|221)?((?:7[05678]|33)\d{7})$/', $raw, $m)) {
             $this->merge(['customer_phone' => '+221' . $m[1]]);

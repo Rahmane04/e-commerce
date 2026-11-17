@@ -9,6 +9,7 @@ import { ShoppingBag, CreditCard, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Money } from "@/domain/shared/money";
+import { buildShopWhatsAppUrl } from "@/lib/whatsapp";
 
 interface ProductClientProps {
   product: Product;
@@ -64,8 +65,7 @@ export function ProductClient({ product, inStock }: ProductClientProps) {
     const variantStr = selectedVariant ? ` (${selectedVariant.value})` : "";
     const priceStr = Money.fromCents(product.priceCents).format();
     const text = `Bonjour, je souhaite commander ce produit :\n\n- ${product.name}${variantStr}\n- Quantité : ${quantity}\n- Prix unitaire : ${priceStr}\n\nLien : ${window.location.href}`;
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
+    window.open(buildShopWhatsAppUrl(text), "_blank");
   };
 
   return (

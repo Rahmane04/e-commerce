@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import { buildShopWhatsAppUrl } from "@/lib/whatsapp";
 
 export function SiteFooter() {
   return (
@@ -9,7 +10,7 @@ export function SiteFooter() {
           © {new Date().getFullYear()} Lingère Bi By Dié Dié
         </p>
         <a
-          href="https://wa.me/221771234567"
+          href={buildShopWhatsAppUrl("Bonjour, j'ai une question sur la boutique.")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Nous contacter sur WhatsApp"

@@ -5,11 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Customer } from "@/domain/customer/customer";
+import { isValidSenegalPhone } from "@/domain/customer/phone";
 import { cn } from "@/lib/utils";
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  phone: z.string().min(8, "Numéro de téléphone invalide"),
+  phone: z.string().refine(isValidSenegalPhone, "Numéro de téléphone invalide (exemple : 77 123 45 67)"),
   email: z.string().email("Email invalide").optional().or(z.literal("")),
   city: z.string().min(2, "Ville/Quartier requis"),
   address: z.string().min(5, "Adresse requise"),

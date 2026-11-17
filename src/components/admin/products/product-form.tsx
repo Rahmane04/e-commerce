@@ -35,6 +35,9 @@ interface ProductFormProps {
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 Mo, comme la validation côté Laravel
 
+/** Validation react-hook-form : refuse un champ vide ou composé uniquement d'espaces. */
+const requiredText = (message: string) => (value: string) => value.trim() !== "" || message;
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
@@ -351,19 +354,27 @@ export function ProductForm({
                   <span />
                 </div>
                 {variantFields.map((field, i) => (
-                  <div key={field.id} className="grid grid-cols-4 gap-2">
-                    <input
-                      type="text"
-                      {...register(`variants.${i}.label`)}
-                      className={cn(inputClass)}
-                      placeholder="Taille"
-                    />
-                    <input
-                      type="text"
-                      {...register(`variants.${i}.value`)}
-                      className={cn(inputClass)}
-                      placeholder="M"
-                    />
+                  <div key={field.id} className="grid grid-cols-4 items-start gap-2">
+                    <div>
+                      <input
+                        type="text"
+                        {...register(`variants.${i}.label`, { validate: requiredText("Type requis") })}
+                        className={cn(inputClass)}
+                        placeholder="Taille"
+                        aria-invalid={!!errors.variants?.[i]?.label}
+                      />
+                      <FieldError message={errors.variants?.[i]?.label?.message} />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        {...register(`variants.${i}.value`, { validate: requiredText("Valeur requise") })}
+                        className={cn(inputClass)}
+                        placeholder="M"
+                        aria-invalid={!!errors.variants?.[i]?.value}
+                      />
+                      <FieldError message={errors.variants?.[i]?.value?.message} />
+                    </div>
                     <input
                       type="number"
                       min={0}
