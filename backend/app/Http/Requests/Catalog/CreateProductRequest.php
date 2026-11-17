@@ -29,4 +29,14 @@ class CreateProductRequest extends FormRequest
             'variants.*.stock' => ['required_with:variants', 'integer', 'min:0'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'variants.*.label.required_with' => 'Chaque variante doit avoir un type (ex : Taille).',
+            'variants.*.value.required_with' => 'Chaque variante doit avoir une valeur (ex : M).',
+            'variants.*.stock.required_with' => 'Chaque variante doit avoir un stock.',
+            'variants.*.stock.min' => 'Le stock d\'une variante ne peut pas être négatif.',
+        ];
+    }
 }

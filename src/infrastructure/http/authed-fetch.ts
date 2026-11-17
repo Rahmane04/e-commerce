@@ -1,6 +1,20 @@
 import { getAuthToken, clearAuthToken } from "@/infrastructure/auth/auth-token";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+/**
+ * Sur Vercel en production, l'absence de NEXT_PUBLIC_API_URL fait échouer le build
+ * au lieu de livrer un site qui appelle localhost en silence.
+ * En local et sur les aperçus, repli sur l'API de développement.
+ */
+function resolveApiUrl(): string {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (url) return url;
+  if (process.env.VERCEL_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_API_URL est absente : définissez-la dans Vercel (Production) puis redéployez.");
+  }
+  return "http://localhost:8000/api";
+}
+
+export const API_URL = resolveApiUrl();
 
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number) {
