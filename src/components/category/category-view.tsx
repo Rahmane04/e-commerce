@@ -187,11 +187,14 @@ export function CategoryView({
                 >
                   {/* Visuel du produit (aspect portrait tall 3/4) */}
                   <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-neutral-100 shadow-xs">
-                    <img
-                      src={product.images[0]?.url}
-                      alt={product.images[0]?.alt ?? product.name}
-                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                    />
+                    {/* L'image mène aussi à la fiche : sur mobile, c'est elle qu'on touche */}
+                    <Link href={`/produit/${product.slug}`} tabIndex={-1} aria-hidden="true">
+                      <img
+                        src={product.images[0]?.url}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                    </Link>
 
                     {/* Badges overlay en haut à gauche */}
                     <div className="absolute left-2.5 top-2.5 flex flex-col gap-1 z-10">
@@ -219,19 +222,22 @@ export function CategoryView({
                   </div>
 
                   {/* Informations produit en noir sous l'image */}
-                  <div className="mt-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-neutral-400">
+                  <div className="mt-3 space-y-1">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[#c5a059]">
                       {subcatName}
                     </p>
-                    <h2 className="mt-1 font-serif text-sm sm:text-base font-semibold leading-snug text-black group-hover:underline">
-                      <Link href={`/produit/${product.slug}`}>
+                    <h2 className="font-serif text-[15px] sm:text-base font-medium leading-snug text-neutral-900 line-clamp-2">
+                      <Link
+                        href={`/produit/${product.slug}`}
+                        className="transition-colors hover:text-[#c5a059] focus-visible:text-[#c5a059] focus-visible:outline-none"
+                      >
                         {product.name}
                       </Link>
                     </h2>
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <span className="text-sm sm:text-base font-bold text-black">{price}</span>
+                    <div className="flex items-baseline gap-2 pt-0.5">
+                      <span className="text-sm sm:text-[15px] font-semibold tabular-nums text-neutral-900">{price}</span>
                       {oldPrice && (
-                        <span className="text-xs text-neutral-400 line-through">{oldPrice}</span>
+                        <span className="text-xs tabular-nums text-neutral-400 line-through">{oldPrice}</span>
                       )}
                     </div>
                     {product.stock <= 0 && (
