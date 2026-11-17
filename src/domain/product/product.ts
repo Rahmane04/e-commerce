@@ -78,3 +78,19 @@ export function primaryProductImage(product: Product): ProductImage {
     }
   );
 }
+
+/**
+ * Image de couverture d'un univers (catégorie racine) : celle d'un vrai produit.
+ * Priorité aux produits mis en avant, puis au plus récent ; seuls les produits
+ * qui ont une photo comptent. Retourne undefined si l'univers n'en a aucun
+ * (l'appelant garde alors son image par défaut).
+ */
+export function pickCategoryCover(products: Product[], categorySlug: string): ProductImage | undefined {
+  const candidates = products.filter((p) => p.categorySlug === categorySlug && p.images.length > 0);
+  candidates.sort(
+    (a, b) =>
+      Number(b.featured ?? false) - Number(a.featured ?? false) ||
+      b.createdAt.localeCompare(a.createdAt),
+  );
+  return candidates[0]?.images[0];
+}
